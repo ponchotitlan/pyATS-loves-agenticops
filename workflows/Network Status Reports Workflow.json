@@ -1,0 +1,426 @@
+{
+  "name": "Network Status Reports Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-5-20250929",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        224
+      ],
+      "id": "6495b1f0-909c-4337-bea7-a66fe39df52e",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "zZ9cfcWm91M5lQRP",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8000/mcp ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        224
+      ],
+      "id": "6532fa94-2b85-4f94-ab96-eed79eb05993",
+      "name": "pyATS MCP"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        0
+      ],
+      "id": "60a05cd5-13c0-46c5-a481-417e881f47c6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "REPORT_QUERIES.md",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        160
+      ],
+      "id": "c92d30a7-9d3b-4a48-a47b-9f2109165b4c",
+      "name": "Get the report queries file",
+      "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
+      "credentials": {
+        "githubApi": {
+          "id": "0hUUykrDrQ4DEkEl",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the base64 content\nconst base64Content = $input.first().json.content;\n\n// Decode from base64\nconst decodedContent = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Split into lines\nconst lines = decodedContent.split('\\n');\n\n// Find the table header and data rows\nlet tableStartIndex = -1;\nfor (let i = 0; i < lines.length; i++) {\n  if (lines[i].includes('| ID |')) {\n    tableStartIndex = i;\n    break;\n  }\n}\n\n// Extract table rows (skip header and separator line)\nconst dataRows = lines.slice(tableStartIndex + 2).filter(line => line.trim().startsWith('|') && line.trim().length > 1);\n\n// Parse each row into JSON\nconst results = dataRows.map(row => {\n  // Split by | and clean up\n  const columns = row.split('|').map(col => col.trim()).filter(col => col.length > 0);\n  \n  return {\n    id: columns[0],\n    queryDescription: columns[1],\n    queryIntent: columns[2],\n    outputFileNamePrefix: columns[3],\n    notes: columns[4]\n  };\n});\n\n// Return array of objects\nreturn results.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        160
+      ],
+      "id": "1be70a77-721e-44aa-b90f-9645c5d35b70",
+      "name": "Decode report queries file"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "prompts/network_report_agent.txt",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        0
+      ],
+      "id": "5e345431-54e3-44e5-b26d-832ebdf05f11",
+      "name": "Get the agent prompt",
+      "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
+      "credentials": {
+        "githubApi": {
+          "id": "0hUUykrDrQ4DEkEl",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the base64 content\nconst base64Content = $input.first().json.content;\n\n// Decode from base64\nconst decodedContent = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Return the decoded content\nreturn {\n  json: {\n    netauto_agent_prompt: decodedContent\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        0
+      ],
+      "id": "aea2474d-b5cc-403c-bc93-c0f9f30de64c",
+      "name": "Decode agent prompt"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.id }}_{{ $json.randomString }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        224
+      ],
+      "id": "68da12a5-2e77-4d10-88d0-430d5885cdf5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "ab21c905-8b9b-4566-9dd1-ab5f4fda05c7",
+      "name": "Merge full request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.netauto_agent_prompt }}\n\nQuery: {{ $json.queryDescription }}\nIntent: {{ $json.queryIntent }}\nNotes: {{ $json.notes }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        432,
+        0
+      ],
+      "id": "9399a4fc-cdc3-4d17-a33b-6ed7417b15ce",
+      "name": "NetAuto AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate a random string\nconst length = 5; // adjust length as needed\nconst randomString = Math.random().toString(36).substring(2, 2 + length);\n\nreturn [{ json: { randomString } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -496,
+        -176
+      ],
+      "id": "027a6679-f75f-4d1c-965d-8d5a7b8bff89",
+      "name": "Random string for memory"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Extract the common fields (without id)\nconst randomString = items.find(item => item.json.randomString)?.json.randomString;\nconst netauto_agent_prompt = items.find(item => item.json.netauto_agent_prompt)?.json.netauto_agent_prompt;\n\n// Filter items that have an id field\nconst itemsWithId = items.filter(item => item.json.id);\n\n// Create output array with common fields added to each id-based item\nconst output = itemsWithId.map(item => ({\n  json: {\n    randomString,\n    netauto_agent_prompt,\n    ...item.json\n  }\n}));\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "9058f284-685a-4831-ac3d-48f1e3924524",
+      "name": "Consolidate query fields"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "=reports/{{ $('Consolidate query fields').item.json.id }}_{{ $('Consolidate query fields').item.json.outputFileNamePrefix }}_{{ $now}}.md",
+        "fileContent": "={{ $json.output }}",
+        "commitMessage": "={{ $('Consolidate query fields').item.json.id }} report gen"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        0
+      ],
+      "id": "16c50c10-2035-49ac-b604-1fea0b0639bf",
+      "name": "Create a report file",
+      "webhookId": "e166c285-6ad1-4efd-a30c-0ea0eba19ff5",
+      "credentials": {
+        "githubApi": {
+          "id": "0hUUykrDrQ4DEkEl",
+          "name": "GitHub account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "NetAuto AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "NetAuto AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get the report queries file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get the agent prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Random string for memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the report queries file": {
+      "main": [
+        [
+          {
+            "node": "Decode report queries file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decode report queries file": {
+      "main": [
+        [
+          {
+            "node": "Merge full request",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Get the agent prompt": {
+      "main": [
+        [
+          {
+            "node": "Decode agent prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decode agent prompt": {
+      "main": [
+        [
+          {
+            "node": "Merge full request",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "NetAuto AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge full request": {
+      "main": [
+        [
+          {
+            "node": "Consolidate query fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NetAuto AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a report file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random string for memory": {
+      "main": [
+        [
+          {
+            "node": "Merge full request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate query fields": {
+      "main": [
+        [
+          {
+            "node": "NetAuto AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bc5762c4-8a8d-40bc-846d-f4a99f1b9ae6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f95a6d7c5968444f45272482757da1c4af9eab1c616e03caeb555b7e9b38b575"
+  },
+  "id": "CnykD4HQd0kyU2BO",
+  "tags": [
+    {
+      "name": "reporting",
+      "id": "Q4fzxfRmPfeL2AFL",
+      "updatedAt": "2026-01-09T19:19:55.385Z",
+      "createdAt": "2026-01-09T19:19:55.385Z"
+    },
+    {
+      "name": "netops",
+      "id": "xKlzjEvsKsefGfkD",
+      "updatedAt": "2026-01-09T19:19:59.971Z",
+      "createdAt": "2026-01-09T19:19:59.971Z"
+    }
+  ]
+}
