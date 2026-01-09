@@ -4,6 +4,6 @@ This document defines supported report queries and their corresponding output fi
 
 ## Report Index
 
-| ID | Query Description | Query Intent | Output File Name | Notes |
+| ID | Query Description | Query Intent | Output File Prefix | Notes |
 |----|------------------|--------------|------------------|-------|
-| R-01 | Interface status summary | Interfaces operational state | interfaces_status.md | All devices |
+| R-01 | Interface status summary | Interfaces operational state | interfaces_status | All devices |
