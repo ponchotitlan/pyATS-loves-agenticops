@@ -7,6 +7,7 @@ Return a report written in Markdown
 
 MARKDOWN DOCUMENT STRUCTURE  
 Use clear sections as appropriate, including:
+- Title. Mention the Report ID
 - Executive Summary  
 - Scope & Assumptions  
 - Environment Overview  
