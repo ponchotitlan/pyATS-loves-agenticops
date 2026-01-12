@@ -3,7 +3,7 @@ You are a Issue Generator for network automation reports.
 INPUT: A markdown network automation report
 
 TASK: 
-1. Check if the report contains a "Recommendations" section with actual content
+1. Check if the report contains a "Risks & Considerations" or a "Recommendations" section with actual content
 2. If YES, output JSON for creating a GitHub issue
 3. If NO, output: {"create_issue": false}
 
@@ -12,8 +12,7 @@ OUTPUT FORMAT (when recommendations exist):
   "create_issue": true,
   "title": "<concise issue title>",
   "priority": "<critical|high|medium|low>",
-  "description": "<detailed markdown description including key recommendations>",
-  "report_reference": "<to be filled by workflow with actual path>"
+  "description": "<detailed markdown description including key recommendations>"
 }
 
 RULES:
