@@ -12,7 +12,7 @@ OUTPUT FORMAT (when recommendations exist):
   "create_issue": true,
   "title": "<concise issue title>",
   "priority": "<critical|high|medium|low>",
-  "description": "<detailed markdown description including key recommendations>"
+  "description": "<detailed markdown description including key recommendations. Append a task list with check boxes to fulfill those recommendations>"
 }
 
 RULES:
