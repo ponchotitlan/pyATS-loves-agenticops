@@ -1,4 +1,4 @@
 - File Prefix: interfaces_status
 - Query: Interface status summary
 - Intent: Interfaces operational state
-- Notes: Device R1
+- Notes: All devices

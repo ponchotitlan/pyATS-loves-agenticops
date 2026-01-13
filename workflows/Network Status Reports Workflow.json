@@ -3,14 +3,14 @@
   "nodes": [
     {
       "parameters": {
-        "endpointUrl": "http://host.docker.internal:8000/mcp ",
+        "endpointUrl": "http://host.docker.internal:8000/mcp",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1.2,
       "position": [
         592,
-        224
+        240
       ],
       "id": "6532fa94-2b85-4f94-ab96-eed79eb05993",
       "name": "pyATS MCP"
@@ -20,76 +20,27 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -736,
-        0
+        -688,
+        112
       ],
       "id": "60a05cd5-13c0-46c5-a481-417e881f47c6",
       "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
-        "resource": "file",
-        "operation": "get",
-        "owner": {
-          "__rl": true,
-          "value": "ponchotitlan",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "pyATS-loves-agenticops",
-          "mode": "list",
-          "cachedResultName": "pyATS-loves-agenticops",
-          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
-        },
-        "filePath": "REPORT_QUERIES.md",
-        "asBinaryProperty": false,
-        "additionalParameters": {}
-      },
-      "type": "n8n-nodes-base.github",
-      "typeVersion": 1.1,
-      "position": [
-        -496,
-        192
-      ],
-      "id": "c92d30a7-9d3b-4a48-a47b-9f2109165b4c",
-      "name": "Get the report queries file",
-      "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
-      "credentials": {
-        "githubApi": {
-          "id": "0hUUykrDrQ4DEkEl",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Get the base64 content\nconst base64Content = $input.first().json.content;\n\n// Decode from base64\nconst decodedContent = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Split into lines\nconst lines = decodedContent.split('\\n');\n\n// Find the table header and data rows\nlet tableStartIndex = -1;\nfor (let i = 0; i < lines.length; i++) {\n  if (lines[i].includes('| ID |')) {\n    tableStartIndex = i;\n    break;\n  }\n}\n\n// Extract table rows (skip header and separator line)\nconst dataRows = lines.slice(tableStartIndex + 2).filter(line => line.trim().startsWith('|') && line.trim().length > 1);\n\n// Parse each row into JSON\nconst results = dataRows.map(row => {\n  // Split by | and clean up\n  const columns = row.split('|').map(col => col.trim()).filter(col => col.length > 0);\n  \n  return {\n    id: columns[0],\n    queryDescription: columns[1],\n    queryIntent: columns[2],\n    outputFileNamePrefix: columns[3],\n    notes: columns[4]\n  };\n});\n\n// Return array of objects\nreturn results.map(item => ({ json: item }));"
+        "jsCode": "// Get the base64 content\nconst base64Content = $input.first().json.content;\n\n// Decode from base64\nconst text = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Ensure it's a string\nconst raw = typeof text === 'string' ? text : JSON.stringify(text);\n\n// Split into lines\nconst lines = raw.split('\\n');\n\n// Object to store parsed fields\nconst result = {};\n\nfor (const line of lines) {\n  // Match pattern: - Key: Value\n  const match = line.match(/-\\s*(.+?):\\s*(.+)/);\n  if (match) {\n    const key = match[1]\n      .trim()\n      .toLowerCase()\n      .replace(/\\s+/g, '_'); // e.g. \"File Prefix\" → \"file_prefix\"\n\n    const value = match[2].trim();\n    result[key] = value;\n  }\n}\n\n// Return as JSON\nreturn [\n  {\n    json: result\n  }\n];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -288,
-        192
+        -256,
+        224
       ],
       "id": "1be70a77-721e-44aa-b90f-9645c5d35b70",
       "name": "Decode report queries file"
     },
     {
       "parameters": {
-        "jsCode": "// Generate a random string\nconst length = 5; // adjust length as needed\nconst randomString = Math.random().toString(36).substring(2, 2 + length);\n\nreturn [{ json: { randomString } }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -496,
-        -176
-      ],
-      "id": "027a6679-f75f-4d1c-965d-8d5a7b8bff89",
-      "name": "Random string for memory"
-    },
-    {
-      "parameters": {
         "resource": "file",
         "owner": {
           "__rl": true,
@@ -103,9 +54,9 @@
           "cachedResultName": "pyATS-loves-agenticops",
           "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "=reports/{{ $('Consolidate reporting query').item.json.id }}_{{ $('Consolidate reporting query').item.json.outputFileNamePrefix }}_{{ $now}}.md",
+        "filePath": "=reports/{{ $('Consolidate reports queries').item.json.id }}_{{ $('Consolidate reports queries').item.json.outputFileNamePrefix }}_{{ $now}}.md",
         "fileContent": "={{ $json.output }}",
-        "commitMessage": "={{ $('Consolidate reporting query').item.json.id }} report gen"
+        "commitMessage": "={{ $('Consolidate reports queries').item.json.id }} report gen"
       },
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
@@ -136,8 +87,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        976,
-        336
+        816,
+        320
       ],
       "id": "21a736f4-9afc-44fc-a021-4afc2954c696",
       "name": "Anthropic Chat Model",
@@ -162,14 +113,11 @@
           "cachedResultName": "pyATS-loves-agenticops",
           "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "title": "=[{{ $('Consolidate ticketing query').item.json.report_tag }}] {{ $('Convert to JSON').item.json.title }}",
-        "body": "={{ $('Convert to JSON').item.json.description }}\n\n📚 Reference report: {{ $('Consolidate ticketing query').item.json.report_url }}",
+        "title": "=[{{ $('Consolidate ticketing queries').item.json.report_tag }}] [{{ $('Convert to JSON').item.json.priority }}] {{ $('Convert to JSON').item.json.title }}",
+        "body": "={{ $('Convert to JSON').item.json.description }}\n\n📚 Reference report: {{ $('Consolidate ticketing queries').item.json.report_url }}",
         "labels": [
           {
-            "label": "={{ $('Consolidate ticketing query').item.json.report_tag }}"
-          },
-          {
-            "label": "={{ $('Convert to JSON').item.json.priority }}"
+            "label": "={{ $('Consolidate ticketing queries').item.json.report_tag }}"
           }
         ],
         "assignees": []
@@ -193,7 +141,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.netauto_agent_prompt }}\n\nQuery: {{ $json.queryDescription }}\nIntent: {{ $json.queryIntent }}\nNotes: {{ $json.notes }}",
+        "text": "={{ $json.netauto_agent_prompt }}\n\nQuery: {{ $json.query }}\nIntent: {{ $json.intent }}\nNotes: {{ $json.notes }}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -228,8 +176,8 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -496,
-        0
+        -464,
+        32
       ],
       "id": "5e345431-54e3-44e5-b26d-832ebdf05f11",
       "name": "Get the report agent prompt",
@@ -264,8 +212,8 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -512,
-        -368
+        -464,
+        -144
       ],
       "id": "9ed08bf9-99e9-42be-aa4f-04301283c22f",
       "name": "Get the ticketing agent prompt",
@@ -284,8 +232,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -288,
-        0
+        -256,
+        32
       ],
       "id": "aea2474d-b5cc-403c-bc93-c0f9f30de64c",
       "name": "Decode report agent prompt"
@@ -297,63 +245,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -304,
-        -368
+        -256,
+        -144
       ],
       "id": "681a1e57-6436-4f9b-ac7a-55f56835d7e1",
       "name": "Decode ticketing agent prompt"
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\n\n// Extract the common fields (without id)\nconst randomString = items.find(item => item.json.randomString)?.json.randomString;\nconst netauto_agent_prompt = items.find(item => item.json.netauto_agent_prompt)?.json.netauto_agent_prompt;\n\n// Filter items that have an id field\nconst itemsWithId = items.filter(item => item.json.id);\n\n// Create output array with common fields added to each id-based item\nconst output = itemsWithId.map(item => ({\n  json: {\n    randomString,\n    netauto_agent_prompt,\n    ...item.json\n  }\n}));\n\nreturn output;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        224,
-        0
-      ],
-      "id": "9058f284-685a-4831-ac3d-48f1e3924524",
-      "name": "Consolidate reporting query"
-    },
-    {
-      "parameters": {
-        "numberInputs": 3
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        0,
-        -16
-      ],
-      "id": "ab21c905-8b9b-4566-9dd1-ab5f4fda05c7",
-      "name": "Merge reports request"
-    },
-    {
-      "parameters": {
-        "numberInputs": 3
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1312,
-        -16
-      ],
-      "id": "52238d31-3fbc-4583-bafb-55bfff2425d6",
-      "name": "Merge ticketing request"
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\n\n// Merge all objects into a single object\nconst consolidated = items.reduce((acc, item) => {\n  return { ...acc, ...item.json };\n}, {});\n\nreturn [{ json: consolidated }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1520,
-        0
-      ],
-      "id": "0ca78626-4a8a-4865-b691-c3291bc0074a",
-      "name": "Consolidate ticketing query"
     },
     {
       "parameters": {
@@ -419,22 +315,7 @@
     },
     {
       "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Consolidate reporting query').item.json.id }}-{{ $('Consolidate reporting query').item.json.randomString }}",
-        "contextWindowLength": 10
-      },
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.3,
-      "position": [
-        464,
-        224
-      ],
-      "id": "02c06763-5372-4da7-9e5b-8b46cf9f5c05",
-      "name": "Simple Memory"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Return the file data\nreturn {\n  json: {\n    report_url: $input.first().json.content.html_url,\n    report_tag: $input.first().json.commit.message\n  }\n};"
+        "jsCode": "// Return the files data\nconst items = $input.all();\n\nconst output = items.map(item => {\n  return {\n    json: {\n      report_url: item.json.content.html_url,\n      report_tag: item.json.commit.message\n    }\n  };\n});\n\nreturn output;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -447,17 +328,118 @@
     },
     {
       "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        48,
+        208
+      ],
+      "id": "ab21c905-8b9b-4566-9dd1-ab5f4fda05c7",
+      "name": "Merge reports queries"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming items\nconst items = $input.all();\n\n// Merge all json objects into one\nconst merged = {};\n\nfor (const item of items) {\n  Object.assign(merged, item.json);\n}\n\n// Return as a single item\nreturn [\n  {\n    json: merged\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "9058f284-685a-4831-ac3d-48f1e3924524",
+      "name": "Consolidate reports queries"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1312,
+        -16
+      ],
+      "id": "52238d31-3fbc-4583-bafb-55bfff2425d6",
+      "name": "Merge ticketing queries"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Extract the ticketing agent prompt (same for all)\nconst ticketingAgentPrompt = items.find(item => item.json.ticketing_agent_prompt)?.json.ticketing_agent_prompt;\n\n// Get outputs and extract their IDs\nconst outputs = items.filter(item => item.json.output).map(item => {\n  // Extract ID from \"**Report ID: XYZ**\" pattern\n  const idMatch = item.json.output.match(/\\*\\*Report ID:\\s*([^\\*\\n]+)\\*\\*/);\n  const id = idMatch ? idMatch[1].trim() : null;\n  return {\n    id: id,\n    output: item.json.output\n  };\n});\n\n// Get report URLs and their tags (which contain the ID)\nconst reportUrls = items.filter(item => item.json.report_url).map(item => {\n  return {\n    id: item.json.report_tag, // \"R-01\", \"R-02\", etc.\n    url: item.json.report_url,\n    tag: item.json.report_tag\n  };\n});\n\n// Merge by ID\nconst consolidated = outputs.map(outputItem => {\n  // Find matching report URL by ID\n  const matchingReport = reportUrls.find(report => report.id === outputItem.id);\n  \n  return {\n    json: {\n      id: outputItem.id,\n      ticketing_agent_prompt: ticketingAgentPrompt,\n      output: outputItem.output,\n      report_url: matchingReport?.url || '',\n      report_tag: matchingReport?.tag || ''\n    }\n  };\n});\n\nreturn consolidated;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        0
+      ],
+      "id": "0ca78626-4a8a-4865-b691-c3291bc0074a",
+      "name": "Consolidate ticketing queries"
+    },
+    {
+      "parameters": {
+        "jsCode": "//Random string for session IDs in memory\nreturn [{\n  json: {\n    executionId: Math.random().toString(36).substring(2, 9)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        464
+      ],
+      "id": "23bada34-39ea-4913-a1a5-366eee429cd4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "reports/interface_status.txt",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -464,
+        224
+      ],
+      "id": "c92d30a7-9d3b-4a48-a47b-9f2109165b4c",
+      "name": "Get the report query file",
+      "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
+      "credentials": {
+        "githubApi": {
+          "id": "0hUUykrDrQ4DEkEl",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Consolidate ticketing query').item.json.report_tag }}"
+        "sessionKey": "={{ $json.executionId }}"
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        1792,
-        192
+        448,
+        240
       ],
-      "id": "445935fe-947e-4fec-b499-46822f1e0511",
-      "name": "Simple Memory1"
+      "id": "650a8b94-8280-48ac-8838-7b0750162377",
+      "name": "Simple Memory"
     }
   ],
   "pinData": {},
@@ -477,7 +459,7 @@
       "main": [
         [
           {
-            "node": "Get the report queries file",
+            "node": "Get the report query file",
             "type": "main",
             "index": 0
           },
@@ -487,23 +469,12 @@
             "index": 0
           },
           {
-            "node": "Random string for memory",
+            "node": "Get the ticketing agent prompt",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Get the ticketing agent prompt",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get the report queries file": {
-      "main": [
-        [
-          {
-            "node": "Decode report queries file",
+            "node": "Code in JavaScript",
             "type": "main",
             "index": 0
           }
@@ -514,20 +485,9 @@
       "main": [
         [
           {
-            "node": "Merge reports request",
+            "node": "Merge reports queries",
             "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
-    "Random string for memory": {
-      "main": [
-        [
-          {
-            "node": "Merge reports request",
-            "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -568,7 +528,7 @@
             "index": 0
           },
           {
-            "node": "Merge ticketing request",
+            "node": "Merge ticketing queries",
             "type": "main",
             "index": 1
           }
@@ -601,9 +561,9 @@
       "main": [
         [
           {
-            "node": "Merge reports request",
+            "node": "Merge reports queries",
             "type": "main",
-            "index": 1
+            "index": 0
           }
         ]
       ]
@@ -612,51 +572,7 @@
       "main": [
         [
           {
-            "node": "Merge ticketing request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Consolidate reporting query": {
-      "main": [
-        [
-          {
-            "node": "Reports AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge reports request": {
-      "main": [
-        [
-          {
-            "node": "Consolidate reporting query",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge ticketing request": {
-      "main": [
-        [
-          {
-            "node": "Consolidate ticketing query",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Consolidate ticketing query": {
-      "main": [
-        [
-          {
-            "node": "Tickets AI Agent",
+            "node": "Merge ticketing queries",
             "type": "main",
             "index": 0
           }
@@ -696,33 +612,88 @@
         ]
       ]
     },
-    "Simple Memory": {
-      "ai_memory": [
-        [
-          {
-            "node": "Reports AI Agent",
-            "type": "ai_memory",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Get report URL and tag": {
       "main": [
         [
           {
-            "node": "Merge ticketing request",
+            "node": "Merge ticketing queries",
             "type": "main",
             "index": 2
           }
         ]
       ]
     },
-    "Simple Memory1": {
-      "ai_memory": [
+    "Merge reports queries": {
+      "main": [
+        [
+          {
+            "node": "Consolidate reports queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate reports queries": {
+      "main": [
+        [
+          {
+            "node": "Reports AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge ticketing queries": {
+      "main": [
+        [
+          {
+            "node": "Consolidate ticketing queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate ticketing queries": {
+      "main": [
         [
           {
             "node": "Tickets AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge reports queries",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Get the report query file": {
+      "main": [
+        [
+          {
+            "node": "Decode report queries file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Reports AI Agent",
             "type": "ai_memory",
             "index": 0
           }
@@ -734,7 +705,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "aa4812b3-8fd6-4a70-a537-b4df37db95e4",
+  "versionId": "e19d11f1-bd7a-4aa8-98a4-02ae41b0b8e9",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f95a6d7c5968444f45272482757da1c4af9eab1c616e03caeb555b7e9b38b575"
@@ -742,14 +713,14 @@
   "id": "CnykD4HQd0kyU2BO",
   "tags": [
     {
-      "updatedAt": "2026-01-09T19:19:55.385Z",
       "createdAt": "2026-01-09T19:19:55.385Z",
+      "updatedAt": "2026-01-09T19:19:55.385Z",
       "id": "Q4fzxfRmPfeL2AFL",
       "name": "reporting"
     },
     {
-      "updatedAt": "2026-01-09T19:19:59.971Z",
       "createdAt": "2026-01-09T19:19:59.971Z",
+      "updatedAt": "2026-01-09T19:19:59.971Z",
       "id": "xKlzjEvsKsefGfkD",
       "name": "netops"
     }
