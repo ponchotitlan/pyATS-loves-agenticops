@@ -1,4 +1,4 @@
-File Prefix: bgp_neighbors_health
-Query: BGP neighbor state and uptime
-Intent: Validate routing stability and detect flapping peers
-Notes: Only core routers; focus on neighbors with state not equal to Established; CLI reference: show ip bgp summary
+- File Prefix: bgp_neighbors_health
+- Query: BGP neighbor state and uptime
+- Intent: Validate routing stability and detect flapping peers
+- Notes: Only core routers; focus on neighbors with state not equal to Established; CLI reference: show ip bgp summary
