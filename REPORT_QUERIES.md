@@ -6,4 +6,4 @@ This document defines supported report queries and their corresponding output fi
 
 | ID | Query Description | Query Intent | Output File Prefix | Notes |
 |----|------------------|--------------|------------------|-------|
-| INTFSTS | Interface status summary | Interfaces operational state | interfaces_status | All devices |
+| INTFSTS | Interface status summary | Interfaces operational state | interfaces_status | Device SW2 |
