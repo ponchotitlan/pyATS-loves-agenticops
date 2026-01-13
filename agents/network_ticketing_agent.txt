@@ -7,11 +7,11 @@ TASK:
 2. If YES, output JSON for creating a GitHub issue
 3. If NO, output: {"create_issue": false}
 
-OUTPUT FORMAT (when recommendations exist):
+OUTPUT FORMAT (when risks, considerations or recommendations exist):
 {
   "create_issue": true,
   "title": "<concise issue title>",
-  "priority": "<critical|high|medium|low>",
+  "priority": "<💀critical|🔥high|⚠️medium|‼️low>",
   "description": "<detailed markdown description including key recommendations. Append a task list with check boxes to fulfill those recommendations>"
 }
 
