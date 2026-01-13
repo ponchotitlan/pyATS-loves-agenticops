@@ -1,0 +1,4 @@
+File Prefix: qos_drops_analysis
+Query: Queue drops and traffic shaping statistics
+Intent: Identify congestion and QoS misconfiguration
+Notes: Interfaces with utilization >70%; parameters: drop-rate, queue-depth; CLI reference: show policy-map interface
