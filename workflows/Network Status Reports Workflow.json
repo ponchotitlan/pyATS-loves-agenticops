@@ -2,42 +2,15 @@
   "name": "Network Status Reports Workflow",
   "nodes": [
     {
-      "parameters": {
-        "endpointUrl": "http://host.docker.internal:8000/mcp",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
-      "typeVersion": 1.2,
-      "position": [
-        592,
-        240
-      ],
-      "id": "6532fa94-2b85-4f94-ab96-eed79eb05993",
-      "name": "pyATS MCP"
-    },
-    {
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -688,
-        112
+        -224,
+        256
       ],
-      "id": "60a05cd5-13c0-46c5-a481-417e881f47c6",
+      "id": "dbb1512a-8395-4a8b-8285-b9db8f566a7f",
       "name": "When clicking ‘Execute workflow’"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Get the base64 content\nconst base64Content = $input.first().json.content;\n\n// Decode from base64\nconst text = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Ensure it's a string\nconst raw = typeof text === 'string' ? text : JSON.stringify(text);\n\n// Split into lines\nconst lines = raw.split('\\n');\n\n// Object to store parsed fields\nconst result = {};\n\nfor (const line of lines) {\n  // Match pattern: - Key: Value\n  const match = line.match(/-\\s*(.+?):\\s*(.+)/);\n  if (match) {\n    const key = match[1]\n      .trim()\n      .toLowerCase()\n      .replace(/\\s+/g, '_'); // e.g. \"File Prefix\" → \"file_prefix\"\n\n    const value = match[2].trim();\n    result[key] = value;\n  }\n}\n\n// Return as JSON\nreturn [\n  {\n    json: result\n  }\n];\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -256,
-        224
-      ],
-      "id": "1be70a77-721e-44aa-b90f-9645c5d35b70",
-      "name": "Decode report queries file"
     },
     {
       "parameters": {
@@ -54,48 +27,23 @@
           "cachedResultName": "pyATS-loves-agenticops",
           "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "=reports/{{ $('Consolidate reports queries').item.json.id }}_{{ $('Consolidate reports queries').item.json.outputFileNamePrefix }}_{{ $now}}.md",
+        "filePath": "=reports/files/{{ $('Consolidate report query').item.json.file_prefix }}_{{ $now}}.md",
         "fileContent": "={{ $json.output }}",
-        "commitMessage": "={{ $('Consolidate reports queries').item.json.id }} report gen"
+        "commitMessage": "={{ $('Consolidate report query').item.json.file_prefix }} report gen"
       },
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        848,
-        96
+        1312,
+        464
       ],
-      "id": "16c50c10-2035-49ac-b604-1fea0b0639bf",
+      "id": "56b6c24f-55fb-4203-b761-b905bd67ab6c",
       "name": "Create a report file",
       "webhookId": "e166c285-6ad1-4efd-a30c-0ea0eba19ff5",
       "credentials": {
         "githubApi": {
-          "id": "0hUUykrDrQ4DEkEl",
+          "id": "pYcGzfUmuhbDWuN1",
           "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "claude-sonnet-4-5-20250929",
-          "mode": "list",
-          "cachedResultName": "Claude Sonnet 4.5"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        816,
-        320
-      ],
-      "id": "21a736f4-9afc-44fc-a021-4afc2954c696",
-      "name": "Anthropic Chat Model",
-      "credentials": {
-        "anthropicApi": {
-          "id": "zZ9cfcWm91M5lQRP",
-          "name": "Anthropic account"
         }
       }
     },
@@ -113,11 +61,11 @@
           "cachedResultName": "pyATS-loves-agenticops",
           "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "title": "=[{{ $('Consolidate ticketing queries').item.json.report_tag }}] [{{ $('Convert to JSON').item.json.priority }}] {{ $('Convert to JSON').item.json.title }}",
-        "body": "={{ $('Convert to JSON').item.json.description }}\n\n📚 Reference report: {{ $('Consolidate ticketing queries').item.json.report_url }}",
+        "title": "=[{{ $('Consolidate ticketing query').item.json.report_tag }}] [{{ $('Convert to JSON').item.json.priority }}] {{ $('Convert to JSON').item.json.title }}",
+        "body": "={{ $('Convert to JSON').item.json.description }}\n\n📚 Reference report: {{ $('Consolidate ticketing query').item.json.report_url }}",
         "labels": [
           {
-            "label": "={{ $('Consolidate ticketing queries').item.json.report_tag }}"
+            "label": "={{ $json.priority }}"
           }
         ],
         "assignees": []
@@ -125,33 +73,18 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        2384,
-        -16
+        2864,
+        352
       ],
-      "id": "df0345e5-09f9-4fc4-b8b2-0e582ea4617d",
+      "id": "594d0b99-507a-4835-aa93-2dc9beef4043",
       "name": "Create an issue",
       "webhookId": "0b777a2d-254b-4cf3-b721-9b1d79a1ab5e",
       "credentials": {
         "githubApi": {
-          "id": "0hUUykrDrQ4DEkEl",
+          "id": "pYcGzfUmuhbDWuN1",
           "name": "GitHub account"
         }
       }
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "={{ $json.netauto_agent_prompt }}\n\nQuery: {{ $json.query }}\nIntent: {{ $json.intent }}\nNotes: {{ $json.notes }}",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3,
-      "position": [
-        432,
-        0
-      ],
-      "id": "9399a4fc-cdc3-4d17-a33b-6ed7417b15ce",
-      "name": "Reports AI Agent"
     },
     {
       "parameters": {
@@ -176,15 +109,15 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -464,
-        32
+        0,
+        176
       ],
-      "id": "5e345431-54e3-44e5-b26d-832ebdf05f11",
+      "id": "2ad1b8e5-ad11-4417-8f97-64b63e87f20b",
       "name": "Get the report agent prompt",
       "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
       "credentials": {
         "githubApi": {
-          "id": "0hUUykrDrQ4DEkEl",
+          "id": "pYcGzfUmuhbDWuN1",
           "name": "GitHub account"
         }
       }
@@ -212,15 +145,15 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -464,
-        -144
+        0,
+        0
       ],
-      "id": "9ed08bf9-99e9-42be-aa4f-04301283c22f",
+      "id": "98f45390-4806-472e-b343-7205af595d74",
       "name": "Get the ticketing agent prompt",
       "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
       "credentials": {
         "githubApi": {
-          "id": "0hUUykrDrQ4DEkEl",
+          "id": "pYcGzfUmuhbDWuN1",
           "name": "GitHub account"
         }
       }
@@ -232,10 +165,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -256,
-        32
+        208,
+        176
       ],
-      "id": "aea2474d-b5cc-403c-bc93-c0f9f30de64c",
+      "id": "034a1d3b-dd87-45f2-8037-4b54f429f730",
       "name": "Decode report agent prompt"
     },
     {
@@ -245,10 +178,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -256,
-        -144
+        208,
+        0
       ],
-      "id": "681a1e57-6436-4f9b-ac7a-55f56835d7e1",
+      "id": "45f0ad22-ecdd-40a8-9319-70a7fb85a0c1",
       "name": "Decode ticketing agent prompt"
     },
     {
@@ -260,10 +193,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        1696,
-        0
+        2160,
+        368
       ],
-      "id": "b6a1d69c-4376-43ae-814f-edc1b31f1b66",
+      "id": "78f74184-ed87-4f1f-a92b-0785c5638eac",
       "name": "Tickets AI Agent"
     },
     {
@@ -273,10 +206,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1984,
-        0
+        2448,
+        368
       ],
-      "id": "d0f4fdca-7a7d-46cd-82e1-d493fd7b861c",
+      "id": "2d8e961e-e3db-43c5-bc8d-c8eaeb09ee3d",
       "name": "Convert to JSON"
     },
     {
@@ -307,10 +240,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2176,
-        0
+        2640,
+        368
       ],
-      "id": "3800bf9f-a795-4d6e-a10d-b39e3e84a7d9",
+      "id": "5f9e3259-4876-4bd9-bbf8-4cee8098ccfa",
       "name": "Is there an issue?"
     },
     {
@@ -320,63 +253,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1072,
-        96
+        1536,
+        464
       ],
-      "id": "269148c8-d4d0-43f1-aeb5-7257a035cdd2",
+      "id": "1af654dd-7cea-4932-9dbc-7c330731ff5f",
       "name": "Get report URL and tag"
-    },
-    {
-      "parameters": {
-        "numberInputs": 3
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        48,
-        208
-      ],
-      "id": "ab21c905-8b9b-4566-9dd1-ab5f4fda05c7",
-      "name": "Merge reports queries"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Get all incoming items\nconst items = $input.all();\n\n// Merge all json objects into one\nconst merged = {};\n\nfor (const item of items) {\n  Object.assign(merged, item.json);\n}\n\n// Return as a single item\nreturn [\n  {\n    json: merged\n  }\n];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        240,
-        0
-      ],
-      "id": "9058f284-685a-4831-ac3d-48f1e3924524",
-      "name": "Consolidate reports queries"
-    },
-    {
-      "parameters": {
-        "numberInputs": 3
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1312,
-        -16
-      ],
-      "id": "52238d31-3fbc-4583-bafb-55bfff2425d6",
-      "name": "Merge ticketing queries"
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\n\n// Extract the ticketing agent prompt (same for all)\nconst ticketingAgentPrompt = items.find(item => item.json.ticketing_agent_prompt)?.json.ticketing_agent_prompt;\n\n// Get outputs and extract their IDs\nconst outputs = items.filter(item => item.json.output).map(item => {\n  // Extract ID from \"**Report ID: XYZ**\" pattern\n  const idMatch = item.json.output.match(/\\*\\*Report ID:\\s*([^\\*\\n]+)\\*\\*/);\n  const id = idMatch ? idMatch[1].trim() : null;\n  return {\n    id: id,\n    output: item.json.output\n  };\n});\n\n// Get report URLs and their tags (which contain the ID)\nconst reportUrls = items.filter(item => item.json.report_url).map(item => {\n  return {\n    id: item.json.report_tag, // \"R-01\", \"R-02\", etc.\n    url: item.json.report_url,\n    tag: item.json.report_tag\n  };\n});\n\n// Merge by ID\nconst consolidated = outputs.map(outputItem => {\n  // Find matching report URL by ID\n  const matchingReport = reportUrls.find(report => report.id === outputItem.id);\n  \n  return {\n    json: {\n      id: outputItem.id,\n      ticketing_agent_prompt: ticketingAgentPrompt,\n      output: outputItem.output,\n      report_url: matchingReport?.url || '',\n      report_tag: matchingReport?.tag || ''\n    }\n  };\n});\n\nreturn consolidated;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1504,
-        0
-      ],
-      "id": "0ca78626-4a8a-4865-b691-c3291bc0074a",
-      "name": "Consolidate ticketing queries"
     },
     {
       "parameters": {
@@ -385,10 +266,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -480,
-        464
+        0,
+        560
       ],
-      "id": "23bada34-39ea-4913-a1a5-366eee429cd4",
+      "id": "8998cab4-23f3-4525-9945-a53cd5f482de",
       "name": "Code in JavaScript"
     },
     {
@@ -407,54 +288,162 @@
           "cachedResultName": "pyATS-loves-agenticops",
           "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "reports/interface_status.txt",
+        "filePath": "reports/interfaces_status.txt",
         "asBinaryProperty": false,
         "additionalParameters": {}
       },
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -464,
-        224
+        0,
+        368
       ],
-      "id": "c92d30a7-9d3b-4a48-a47b-9f2109165b4c",
+      "id": "4f2cc726-620f-479d-b8c5-940395815525",
       "name": "Get the report query file",
       "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
       "credentials": {
         "githubApi": {
-          "id": "0hUUykrDrQ4DEkEl",
+          "id": "pYcGzfUmuhbDWuN1",
           "name": "GitHub account"
         }
       }
     },
     {
       "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        736
+      ],
+      "id": "c0cd1681-5b6e-4d55-8d6e-2e9066ecb5a9",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "LvYQgi9Wof3mvquf",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $json.executionId }}"
+        "sessionKey": "={{ $('Consolidate report query').item.json.executionId }}"
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        448,
-        240
+        928,
+        576
       ],
-      "id": "650a8b94-8280-48ac-8838-7b0750162377",
+      "id": "5f813c8b-ce92-4634-babd-c0af7db194fd",
       "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8000/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        1072,
+        576
+      ],
+      "id": "8bbb386f-56b4-4ae1-af4e-e0cb736a68cc",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.netauto_agent_prompt }}\n\n- Query: {{ $json.query }}\n- Intent: {{ $json.intent }}\n- Notes: {{ $json.notes }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        368
+      ],
+      "id": "9d39e352-7cc5-42ee-b4fe-fcb1531e834a",
+      "name": "Reports AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the base64 content\nconst base64Content = $input.first().json.content;\n\n// Decode from base64\nconst text = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Ensure it's a string\nconst raw = typeof text === 'string' ? text : JSON.stringify(text);\n\n// Split into lines\nconst lines = raw.split('\\n');\n\n// Object to store parsed fields\nconst result = {};\n\nfor (const line of lines) {\n  // Match pattern: - Key: Value\n  const match = line.match(/-\\s*(.+?):\\s*(.+)/);\n  if (match) {\n    const key = match[1]\n      .trim()\n      .toLowerCase()\n      .replace(/\\s+/g, '_'); // e.g. \"File Prefix\" → \"file_prefix\"\n\n    const value = match[2].trim();\n    result[key] = value;\n  }\n}\n\n// Return as JSON\nreturn [\n  {\n    json: result\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        368
+      ],
+      "id": "dbe572c4-ab4e-4812-8637-3fbba3cc29b2",
+      "name": "Decode report query file"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        512,
+        352
+      ],
+      "id": "eeb2b093-bc81-48c1-bb38-548083d34e3d",
+      "name": "Merge report query data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming items\nconst items = $input.all();\n\n// Merge all json objects into one\nconst merged = {};\n\nfor (const item of items) {\n  Object.assign(merged, item.json);\n}\n\n// Return as a single item\nreturn [\n  {\n    json: merged\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        368
+      ],
+      "id": "34fa023e-6146-45ac-bc98-3075ee7c1071",
+      "name": "Consolidate report query"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1776,
+        352
+      ],
+      "id": "90c2eb4f-0b87-4e6e-a2d0-b189ee134f2e",
+      "name": "Merge ticketing query data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming items\nconst items = $input.all();\n\n// Merge all json objects into one\nconst merged = {};\n\nfor (const item of items) {\n  Object.assign(merged, item.json);\n}\n\n// Return as a single item\nreturn [\n  {\n    json: merged\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        368
+      ],
+      "id": "df297498-5616-435e-9b9d-e7881f575227",
+      "name": "Consolidate ticketing query"
     }
   ],
   "pinData": {},
   "connections": {
-    "pyATS MCP": {
-      "ai_tool": [
-        [
-          {
-            "node": "Reports AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "When clicking ‘Execute workflow’": {
       "main": [
         [
@@ -481,33 +470,6 @@
         ]
       ]
     },
-    "Decode report queries file": {
-      "main": [
-        [
-          {
-            "node": "Merge reports queries",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Anthropic Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Reports AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          },
-          {
-            "node": "Tickets AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Create a report file": {
       "main": [
         [
@@ -515,22 +477,6 @@
             "node": "Get report URL and tag",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "Reports AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Create a report file",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Merge ticketing queries",
-            "type": "main",
-            "index": 1
           }
         ]
       ]
@@ -561,7 +507,7 @@
       "main": [
         [
           {
-            "node": "Merge reports queries",
+            "node": "Merge report query data",
             "type": "main",
             "index": 0
           }
@@ -572,7 +518,7 @@
       "main": [
         [
           {
-            "node": "Merge ticketing queries",
+            "node": "Merge ticketing query data",
             "type": "main",
             "index": 0
           }
@@ -616,53 +562,9 @@
       "main": [
         [
           {
-            "node": "Merge ticketing queries",
+            "node": "Merge ticketing query data",
             "type": "main",
             "index": 2
-          }
-        ]
-      ]
-    },
-    "Merge reports queries": {
-      "main": [
-        [
-          {
-            "node": "Consolidate reports queries",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Consolidate reports queries": {
-      "main": [
-        [
-          {
-            "node": "Reports AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge ticketing queries": {
-      "main": [
-        [
-          {
-            "node": "Consolidate ticketing queries",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Consolidate ticketing queries": {
-      "main": [
-        [
-          {
-            "node": "Tickets AI Agent",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -671,7 +573,7 @@
       "main": [
         [
           {
-            "node": "Merge reports queries",
+            "node": "Merge report query data",
             "type": "main",
             "index": 2
           }
@@ -682,8 +584,24 @@
       "main": [
         [
           {
-            "node": "Decode report queries file",
+            "node": "Decode report query file",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Reports AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Tickets AI Agent",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -699,30 +617,112 @@
           }
         ]
       ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Reports AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reports AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a report file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge ticketing query data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Decode report query file": {
+      "main": [
+        [
+          {
+            "node": "Merge report query data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge report query data": {
+      "main": [
+        [
+          {
+            "node": "Consolidate report query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate report query": {
+      "main": [
+        [
+          {
+            "node": "Reports AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge ticketing query data": {
+      "main": [
+        [
+          {
+            "node": "Consolidate ticketing query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate ticketing query": {
+      "main": [
+        [
+          {
+            "node": "Tickets AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "e19d11f1-bd7a-4aa8-98a4-02ae41b0b8e9",
+  "versionId": "4145b4bd-e642-440c-9b87-8b16df4b6b07",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "f95a6d7c5968444f45272482757da1c4af9eab1c616e03caeb555b7e9b38b575"
+    "instanceId": "6c6782a8991552b2596e234b16c212cb221496b90c83d7b5aa043c96cb370b73"
   },
-  "id": "CnykD4HQd0kyU2BO",
+  "id": "HYBAS7DXRHq2YnkQ",
   "tags": [
     {
-      "createdAt": "2026-01-09T19:19:55.385Z",
-      "updatedAt": "2026-01-09T19:19:55.385Z",
-      "id": "Q4fzxfRmPfeL2AFL",
-      "name": "reporting"
+      "name": "netops",
+      "id": "0xEVorz40AcWYNDC",
+      "createdAt": "2026-01-13T17:46:25.171Z",
+      "updatedAt": "2026-01-13T17:46:25.171Z"
     },
     {
-      "createdAt": "2026-01-09T19:19:59.971Z",
-      "updatedAt": "2026-01-09T19:19:59.971Z",
-      "id": "xKlzjEvsKsefGfkD",
-      "name": "netops"
+      "name": "reporting",
+      "id": "xr9hPS61dWvLrGhl",
+      "createdAt": "2026-01-13T17:46:25.154Z",
+      "updatedAt": "2026-01-13T17:46:25.154Z"
     }
   ]
 }
