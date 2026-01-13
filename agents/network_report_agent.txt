@@ -7,7 +7,6 @@ Return a report written in Markdown
 
 MARKDOWN DOCUMENT STRUCTURE  
 Use clear sections as appropriate, including:
-- Header. Mention the Report ID with the prefix "Report ID"
 - Executive Summary  
 - Scope & Assumptions  
 - Environment Overview  
