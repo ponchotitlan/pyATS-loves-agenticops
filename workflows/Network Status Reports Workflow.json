@@ -6,8 +6,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -224,
-        256
+        -416,
+        384
       ],
       "id": "dbb1512a-8395-4a8b-8285-b9db8f566a7f",
       "name": "When clicking ‘Execute workflow’"
@@ -288,7 +288,7 @@
           "cachedResultName": "pyATS-loves-agenticops",
           "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "reports/interfaces_status.txt",
+        "filePath": "reports/qos_status.txt",
         "asBinaryProperty": false,
         "additionalParameters": {}
       },
@@ -365,7 +365,9 @@
       "parameters": {
         "promptType": "define",
         "text": "={{ $json.netauto_agent_prompt }}\n\n- Query: {{ $json.query }}\n- Intent: {{ $json.intent }}\n- Notes: {{ $json.notes }}\n",
-        "options": {}
+        "options": {
+          "maxIterations": 100
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
@@ -440,6 +442,23 @@
       ],
       "id": "df297498-5616-435e-9b9d-e7881f575227",
       "name": "Consolidate ticketing query"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -432,
+        192
+      ],
+      "id": "874dae68-5af5-49f9-a46a-170dbf9c3d38",
+      "name": "Schedule Trigger"
     }
   ],
   "pinData": {},
@@ -699,13 +718,39 @@
           }
         ]
       ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get the ticketing agent prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get the report agent prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get the report query file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "4145b4bd-e642-440c-9b87-8b16df4b6b07",
+  "versionId": "f57432dd-0416-4284-a459-0fc2c50975d8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6c6782a8991552b2596e234b16c212cb221496b90c83d7b5aa043c96cb370b73"
@@ -713,16 +758,16 @@
   "id": "HYBAS7DXRHq2YnkQ",
   "tags": [
     {
-      "name": "netops",
-      "id": "0xEVorz40AcWYNDC",
       "createdAt": "2026-01-13T17:46:25.171Z",
-      "updatedAt": "2026-01-13T17:46:25.171Z"
+      "updatedAt": "2026-01-13T17:46:25.171Z",
+      "id": "0xEVorz40AcWYNDC",
+      "name": "netops"
     },
     {
-      "name": "reporting",
-      "id": "xr9hPS61dWvLrGhl",
       "createdAt": "2026-01-13T17:46:25.154Z",
-      "updatedAt": "2026-01-13T17:46:25.154Z"
+      "updatedAt": "2026-01-13T17:46:25.154Z",
+      "id": "xr9hPS61dWvLrGhl",
+      "name": "reporting"
     }
   ]
 }
