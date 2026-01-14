@@ -13,6 +13,10 @@ services:
       - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
       - EXECUTIONS_DATA_SAVE_ON_ERROR=all
       - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
+
+      # Webhook URL - Get your static domain from https://dashboard.ngrok.com/cloud-edge/domains
+      # Then replace YOUR-STATIC-DOMAIN below with it (e.g., abc-123-def.ngrok-free.app)
+      - WEBHOOK_URL=uYOUR-STATIC-DOMAIN
       
     volumes:
       - n8n_data:/home/node/.n8n
@@ -23,6 +27,22 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok
+    restart: unless-stopped
+    command:
+      - "http"
+      - "n8n:5678"
+      - "--domain=uYOUR-STATIC-DOMAIN"
+    environment:
+      # Get your auth token from https://dashboard.ngrok.com/get-started/your-authtoken
+      - NGROK_AUTHTOKEN=YOUR-TOKEN
+    ports:
+      - "4040:4040"
+    depends_on:
+      - n8n
 
 volumes:
   n8n_data:
