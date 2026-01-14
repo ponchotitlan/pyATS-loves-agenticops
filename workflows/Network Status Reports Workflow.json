@@ -6,8 +6,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -416,
-        384
+        -272,
+        448
       ],
       "id": "dbb1512a-8395-4a8b-8285-b9db8f566a7f",
       "name": "When clicking ‘Execute workflow’"
@@ -73,7 +73,7 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        2864,
+        2816,
         352
       ],
       "id": "594d0b99-507a-4835-aa93-2dc9beef4043",
@@ -109,7 +109,7 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        0,
+        16,
         176
       ],
       "id": "2ad1b8e5-ad11-4417-8f97-64b63e87f20b",
@@ -145,8 +145,8 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        0,
-        0
+        1312,
+        256
       ],
       "id": "98f45390-4806-472e-b343-7205af595d74",
       "name": "Get the ticketing agent prompt",
@@ -165,7 +165,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        208,
+        224,
         176
       ],
       "id": "034a1d3b-dd87-45f2-8037-4b54f429f730",
@@ -178,8 +178,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        208,
-        0
+        1536,
+        256
       ],
       "id": "45f0ad22-ecdd-40a8-9319-70a7fb85a0c1",
       "name": "Decode ticketing agent prompt"
@@ -240,7 +240,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2640,
+        2608,
         368
       ],
       "id": "5f9e3259-4876-4bd9-bbf8-4cee8098ccfa",
@@ -261,19 +261,6 @@
     },
     {
       "parameters": {
-        "jsCode": "//Random string for session IDs in memory\nreturn [{\n  json: {\n    executionId: Math.random().toString(36).substring(2, 9)\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        0,
-        560
-      ],
-      "id": "8998cab4-23f3-4525-9945-a53cd5f482de",
-      "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
         "resource": "file",
         "operation": "get",
         "owner": {
@@ -288,14 +275,14 @@
           "cachedResultName": "pyATS-loves-agenticops",
           "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "reports/qos_status.txt",
+        "filePath": "reports/R1_interfaces_status.txt",
         "asBinaryProperty": false,
         "additionalParameters": {}
       },
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        0,
+        16,
         368
       ],
       "id": "4f2cc726-620f-479d-b8c5-940395815525",
@@ -385,7 +372,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        208,
+        224,
         368
       ],
       "id": "dbe572c4-ab4e-4812-8637-3fbba3cc29b2",
@@ -398,7 +385,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        512,
+        560,
         352
       ],
       "id": "eeb2b093-bc81-48c1-bb38-548083d34e3d",
@@ -411,7 +398,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        704,
+        752,
         368
       ],
       "id": "34fa023e-6146-45ac-bc98-3075ee7c1071",
@@ -454,11 +441,24 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -432,
-        192
+        -272,
+        256
       ],
       "id": "874dae68-5af5-49f9-a46a-170dbf9c3d38",
       "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "//Random string for session IDs in memory\nreturn [{\n  json: {\n    executionId: Math.random().toString(36).substring(2, 9)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        560
+      ],
+      "id": "8998cab4-23f3-4525-9945-a53cd5f482de",
+      "name": "Random execution ID for memory"
     }
   ],
   "pinData": {},
@@ -477,12 +477,7 @@
             "index": 0
           },
           {
-            "node": "Get the ticketing agent prompt",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Code in JavaScript",
+            "node": "Random execution ID for memory",
             "type": "main",
             "index": 0
           }
@@ -588,17 +583,6 @@
         ]
       ]
     },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Merge report query data",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
     "Get the report query file": {
       "main": [
         [
@@ -660,6 +644,11 @@
             "node": "Merge ticketing query data",
             "type": "main",
             "index": 1
+          },
+          {
+            "node": "Get the ticketing agent prompt",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -723,11 +712,6 @@
       "main": [
         [
           {
-            "node": "Get the ticketing agent prompt",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Get the report agent prompt",
             "type": "main",
             "index": 0
@@ -738,9 +722,20 @@
             "index": 0
           },
           {
-            "node": "Code in JavaScript",
+            "node": "Random execution ID for memory",
             "type": "main",
             "index": 0
+          }
+        ]
+      ]
+    },
+    "Random execution ID for memory": {
+      "main": [
+        [
+          {
+            "node": "Merge report query data",
+            "type": "main",
+            "index": 2
           }
         ]
       ]
@@ -750,7 +745,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f57432dd-0416-4284-a459-0fc2c50975d8",
+  "versionId": "bf4b852f-3ef9-4c20-81a9-0e707ec66d39",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6c6782a8991552b2596e234b16c212cb221496b90c83d7b5aa043c96cb370b73"

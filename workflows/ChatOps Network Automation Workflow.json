@@ -1,0 +1,982 @@
+{
+  "name": "ChatOps Network Automation Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are an intent classification and extraction agent for network automation.\n\nYour job is to convert the user's message into structured JSON.\n\nYou MUST always output valid JSON.\nYou MUST always include the field \"intent\".\nYou MUST output JSON only. No explanations. No markdown. No extra text.\n\nThe intent MUST be exactly one of:\n- \"read\"\n- \"write\"\n\nEvery user message must map to exactly one intent.\n\nOUTPUT SCHEMA (always follow exactly):\n{\n  \"intent\": \"read\" | \"write\",\n  \"action\": \"<short action description>\",\n  \"device\": \"<devices names or null>\",\n  \"parameters\": { ... }\n}\n\nCLASSIFICATION RULES:\n- Use intent = \"read\" for: show, get, check, verify, display, list, status, query\n- Use intent = \"write\" for: change, update, configure, add, delete, remove, modify, apply, set\n- If the user asks to perform an action that would change the network, it is ALWAYS \"write\"\n- If the user asks only for information, it is ALWAYS \"read\"\n\nEXTRACTION RULES:\n- Never invent values\n- Never guess missing information\n- If a value is missing, use null\n- Always extract concrete values when present (device, interface, vlan, ip, description, etc.)\n- Do not hallucinate devices, interfaces, IPs, or commands\n\nEXAMPLES:\n\nInput:\nplease show interface status on SW1\nOutput:\n{\n  \"intent\": \"read\",\n  \"action\": \"show interface status\",\n  \"device\": \"SW1\",\n  \"parameters\": {}\n}\n\nInput:\nupdate description of interface Ethernet0/0 in device SW1 to Test DevNet\nOutput:\n{\n  \"intent\": \"write\",\n  \"action\": \"update interface description\",\n  \"device\": \"SW1\",\n  \"parameters\": {\n    \"interface\": \"Ethernet0/0\",\n    \"description\": \"Test DevNet\"\n  }\n}\n\nInput:\nadd vlan 20 named users on switch core1\nOutput:\n{\n  \"intent\": \"write\",\n  \"action\": \"create vlan\",\n  \"device\": \"core1\",\n  \"parameters\": {\n    \"vlan\": \"20\",\n    \"name\": \"users\"\n  }\n}\n\nInput:\nshow bgp neighbors\nOutput:\n{\n  \"intent\": \"read\",\n  \"action\": \"show bgp neighbors\",\n  \"device\": null,\n  \"parameters\": {}\n}\n\n</SYSTEM>\n\n<USER>\n{{ $json.request }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -1232,
+        240
+      ],
+      "id": "8ae41f99-3203-47a4-8d29-13f0fb730766",
+      "name": "Intent Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:14b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        416
+      ],
+      "id": "5793f194-f484-4122-bcfb-8d180b8d2182",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XHQUGtKEuHD0PNR1",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.text || '';\nconst cleaned = text.replace(/<@[^>]+>/g, \"\").trim();\nreturn [{ request: cleaned, user:$input.first().json.user , channel: $input.first().json.channel }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1424,
+        240
+      ],
+      "id": "8e15ce67-4066-430a-ae6f-76b26e43933b",
+      "name": "Remove app mention"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  let outputText = item.json.output;\n  \n  // Remove markdown code block markers (```json and ```)\n  outputText = outputText.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\n  \n  // Parse the JSON string into an object\n  const parsedJson = JSON.parse(outputText);\n  \n  return { json: parsedJson };\n});\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -944,
+        240
+      ],
+      "id": "1afc8d2e-f9b1-48d6-9858-bb91e624c8f9",
+      "name": "Convert to JSON"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:14b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        336
+      ],
+      "id": "a57d1a2d-8041-4b25-9fc5-867e5a0b29e5",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XHQUGtKEuHD0PNR1",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:14b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        640
+      ],
+      "id": "37f26f72-12fd-42b4-8e4f-f84dbb45924b",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XHQUGtKEuHD0PNR1",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "write",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "046212f9-ddba-4774-80cb-989e3796240a"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4fd3510c-ca59-4350-8711-542c45d623c9",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "read",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -768,
+        240
+      ],
+      "id": "3d603242-5481-4074-8895-9a867437270e",
+      "name": "Switch intent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are a Slack message formatter for a NetOps assistant named Packetl.\n\nYour job is to format the given content into valid Slack mrkdwn only.\n\nYou never change meaning.\nYou never add technical content.\nYou only improve presentation.\n\nSLACK FORMATTING RULES YOU MUST FOLLOW\n\n- Bold: *text*\n- Italic: _text_\n- Inline code: `text`\n- Code blocks: triple backticks\n- Bullet lists: use \"- \" at the start of the line\n- New lines: separate sections with a blank line\n\nHARD CONSTRAINTS\n\n- NEVER use **bold** (double asterisks are invalid in Slack)\n- NEVER use Markdown tables\n- NEVER nest formatting (no bold inside italic, no italic inside bold)\n- NEVER mix inline code with bold or italic on the same word\n- NEVER invent data\n- NEVER remove technical details\n- NEVER change command output inside code blocks\n- NEVER output raw JSON unless the user explicitly asked for JSON\n\nBEHAVIOR RULES\n\n- If the input contains CLI commands, wrap them in a code block.\n- If the input contains device names, interfaces, IPs, commands, or config lines, wrap those tokens with backticks.\n- If the input is long, structure it into short sections with clear bullet points.\n- If the input already contains a code block, preserve it exactly.\n- If there is confirmation required, kindly ask the user to confirm if they want to apply these configurations\n\nMENTION HANDLING\n\n- Remove any word that starts with \"@\"\n- Do not repeat or reformat mentions\n\nTONE\n\n- Clear\n- Professional\n- Concise\n- Helpful\n- No emojis\n- No fluff\n\nEXAMPLE\n\nInput:\nInterface status for device SW1:\nPort: Et0/0\nStatus: connected\nVLAN: 10\n\nOutput:\nInterface status for device `SW1`:\n\n- Port: `Et0/0`\n- Status: connected\n- VLAN: `10`\n\n</SYSTEM>\n\n<USER>\n{{ $json.output }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        480
+      ],
+      "id": "1652ff11-96e7-42d7-9ef1-ac5e740828a0",
+      "name": "Formatting Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:14b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        640
+      ],
+      "id": "d11ede02-b884-4a2e-8336-cc51da3bbb98",
+      "name": "Ollama Chat Model3",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XHQUGtKEuHD0PNR1",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8000/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -304,
+        640
+      ],
+      "id": "eccd2033-a59e-47eb-b85a-2b5c687cce96",
+      "name": "pyATS MCP"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are a network configuration planning assistant. Your role is to generate precise CLI commands for network devices based on user requests.\n\nCRITICAL RULES:\n1. Output ONLY valid JSON - no markdown, no explanations outside the JSON\n2. Generate executable CLI commands in the correct syntax for the target device\n3. Include rollback commands when applicable\n4. Be conservative - if unsure, request clarification\n\nOUTPUT FORMAT (strict JSON):\n{\n  \"device\": \"device-name-or-ip\",\n  \"commands\": [\n    \"command1\",\n    \"command2\"\n  ],\n  \"description\": \"Brief description of what these commands do\",\n  \"risk_level\": \"low|medium|high\",\n  \"rollback_commands\": [\n    \"rollback-command1\",\n    \"rollback-command2\"\n  ],\n  \"requires_confirmation\": true\n}\n\nEXAMPLES:\n\nInput: \"Configure interface GigabitEthernet0/0/1 on router-lab-01 with IP 10.0.1.1/24\"\nOutput:\n{\n  \"device\": \"router-lab-01\",\n  \"commands\": [\n    \"configure terminal\",\n    \"interface GigabitEthernet0/0/1\",\n    \"ip address 10.0.1.1 255.255.255.0\",\n    \"no shutdown\",\n    \"end\"\n  ],\n  \"description\": \"Configure IP address on GigE0/0/1 and bring interface up\",\n  \"risk_level\": \"medium\",\n  \"rollback_commands\": [\n    \"configure terminal\",\n    \"interface GigabitEthernet0/0/1\",\n    \"shutdown\",\n    \"no ip address\",\n    \"end\"\n  ],\n  \"requires_confirmation\": true\n}\n\nInput: \"Add VLAN 100 named Engineering to switch-core-01\"\nOutput:\n{\n  \"device\": \"switch-core-01\",\n  \"commands\": [\n    \"configure terminal\",\n    \"vlan 100\",\n    \"name Engineering\",\n    \"end\"\n  ],\n  \"description\": \"Create VLAN 100 with name Engineering\",\n  \"risk_level\": \"low\",\n  \"rollback_commands\": [\n    \"configure terminal\",\n    \"no vlan 100\",\n    \"end\"\n  ],\n  \"requires_confirmation\": true\n}\n\nInput: \"Set BGP neighbor 192.168.1.1 remote-as 65001 on router-bgp-01\"\nOutput:\n{\n  \"device\": \"router-bgp-01\",\n  \"commands\": [\n    \"configure terminal\",\n    \"router bgp 65000\",\n    \"neighbor 192.168.1.1 remote-as 65001\",\n    \"neighbor 192.168.1.1 activate\",\n    \"end\"\n  ],\n  \"description\": \"Configure BGP neighbor 192.168.1.1 in AS 65001\",\n  \"risk_level\": \"high\",\n  \"rollback_commands\": [\n    \"configure terminal\",\n    \"router bgp 65000\",\n    \"no neighbor 192.168.1.1\",\n    \"end\"\n  ],\n  \"requires_confirmation\": true\n}\n\nRESPONSE RULES:\n- If the request is ambiguous, add a \"clarification_needed\" field with questions\n- If you cannot determine the vendor, default to \"cisco\" or ask\n- Always include \"configure terminal\" and \"end\" for Cisco IOS\n- Never generate dangerous commands without high risk_level marking\n- Keep commands minimal and atomic\n\n</SYSTEM>\n\n<USER>\naction: {{ $json.action }}\ndevices: {{ $json.device }}\nparameters: {{ $json.parameters.values() }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -432,
+        144
+      ],
+      "id": "fc5f905a-76a4-4e51-a44f-6519e21334d1",
+      "name": "Planning Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are a NetOps MCP agent.\n\nROLE:\nRetrieve information from the network using MCP tools.\n\nBEHAVIOR RULES:\n\n- Immediately perform the necessary read commands.\n- Never ask for permission to run read commands.\n- Never ask “shall I proceed?” or similar questions.\n- Never perform write/configuration actions.\n- Never invent devices, interfaces, IPs, or configuration.\n\nOnly use data returned by MCP tools.\n\nTASK:\n\n- Convert the input into the best read-only CLI commands.\n- Use MCP to execute those commands.\n- If multiple read commands are useful, run all of them.\n- Base your answer only on tool results.\n- If there are no devices in the input, and you are asked about capabilities or inventory, use the tools available to reply to that request\n\nALLOWED COMMAND TYPES:\nCommands starting with:\n\n- show\n- get\n- display\n- list\n- check\n- verify\n- status\n\nIF INFORMATION IS MISSING:\n\nRespond with:\n\"Missing required information: <what is missing>\"\n\nOUTPUT:\n\n- Return the retrieved information clearly.\n- Do not mention internal rules.\n- Do not mention the word \"mode\".\n\nEXAMPLE INPUT:\n\"intent\": \"read\",\n\"action\": \"show interface status\",\n\"device\": \"SW1\",\n\"parameters\": {}\n\nCORRECT BEHAVIOR:\nImmediately execute appropriate MCP read command and return the result.\n</SYSTEM>\n\n<USER>\nintent: {{ $json.intent }},\naction: {{ $json.action }},\ndevice: {{ $json.device }},\nparameters: {{ $json.parameters }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -448,
+        480
+      ],
+      "id": "e3e2db10-a920-4922-a30d-8b0942ce4655",
+      "name": "Reading Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  let outputText = item.json.output;\n  \n  // Remove markdown code block markers (```json and ```)\n  outputText = outputText.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\n  \n  // Parse the JSON string into an object\n  const parsedJson = JSON.parse(outputText);\n  \n  return { json: parsedJson };\n});\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        144
+      ],
+      "id": "4762959e-59a2-4cb8-bf44-42c206bfe528",
+      "name": "JSON Planning output"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create a session object with all needed data\nconst sessionData = {\n  session_id: $execution.id, // n8n execution ID\n  device: $input.first().json.device,\n  commands: $input.first().json.commands,\n  rollback_commands: $input.first().json.rollback_commands || [],\n  risk_level: $input.first().json.risk_level,\n  user_id: $('Slack Trigger for chats').first().json.user,\n  channel_id: $('Slack Trigger for chats').first().json.channel,\n  thread_ts: $('Slack Trigger for chats').first().json.event_ts,\n  timestamp: new Date().toISOString()\n};\n\n// Encode session data as base64 to embed in button value\nconst sessionToken = Buffer.from(JSON.stringify(sessionData)).toString('base64');\n\n// Format commands for display\nconst commandsPreview = $input.first().json.commands\n  .map(cmd => `  ${cmd}`)\n  .join('\\n');\n\n// Create Slack Block Kit message\nconst blocks = [\n  {\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Configuration Plan for ${$input.first().json.device}*\\n\\n${$input.first().json.description}\\n\\n*Risk Level:* ${$input.first().json.risk_level.toUpperCase()}`\n    }\n  },\n  {\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Commands to execute:*\\n\\`\\`\\`\\n${commandsPreview}\\n\\`\\`\\``\n    }\n  },\n  {\n    type: \"actions\",\n    elements: [\n      {\n        type: \"button\",\n        text: {\n          type: \"plain_text\",\n          text: \"✅ Confirm & Apply\"\n        },\n        style: \"primary\",\n        action_id: \"confirm_config\",\n        value: sessionToken // ← Session data embedded here\n      },\n      {\n        type: \"button\",\n        text: {\n          type: \"plain_text\",\n          text: \"❌ Cancel\"\n        },\n        style: \"danger\",\n        action_id: \"cancel_config\",\n        value: sessionToken // ← Same data for cancel action\n      }\n    ]\n  }\n];\n\nreturn {\n  json: {\n    channel: $('Slack Trigger for chats').first().json.channel,\n    thread_ts: $('Slack Trigger for chats').first().json.event_ts,\n    blocks: blocks,\n    text: `Configuration plan ready for ${$input.first().json.device}` // Fallback text\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        144
+      ],
+      "id": "17070eb5-3d8d-439b-b57d-6294cdc5b308",
+      "name": "Commit Slack button data"
+    },
+    {
+      "parameters": {
+        "channel": "={{ $json.channel }}",
+        "text": "={{ $json.text }}",
+        "otherOptions": {},
+        "attachments": [],
+        "blocksUi": {
+          "blocksValues": [
+            {
+              "type": "section",
+              "blockId": "",
+              "textUi": {
+                "textValue": {
+                  "type": "mrkwdn",
+                  "text": "={{ $json.blocks[0].text.text }}",
+                  "verbatim": false
+                }
+              },
+              "fieldsUi": {},
+              "accessoryUi": {}
+            },
+            {
+              "type": "section",
+              "blockId": "",
+              "textUi": {
+                "textValue": {
+                  "type": "mrkwdn",
+                  "text": "={{ $json.blocks[1].text.text }}",
+                  "verbatim": false
+                }
+              },
+              "fieldsUi": {},
+              "accessoryUi": {}
+            },
+            {
+              "elementsUi": {
+                "elementsValues": [
+                  {
+                    "type": "button",
+                    "text": "={{ $json.blocks[2].elements[0].text.text }}",
+                    "emoji": false,
+                    "actionId": "={{ $json.blocks[2].elements[0].action_id }}",
+                    "url": "",
+                    "value": "={{ $json.blocks[2].elements[0].value }}",
+                    "style": "default",
+                    "confirmUi": {}
+                  },
+                  {
+                    "type": "button",
+                    "text": "={{ $json.blocks[2].elements[1].text.text }}",
+                    "emoji": false,
+                    "actionId": "={{ $json.blocks[2].elements[1].action_id }}",
+                    "url": "",
+                    "value": "={{ $json.blocks[2].elements[1].value }}",
+                    "style": "danger",
+                    "confirmUi": {}
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "e7f91146-8d3d-4563-b561-c34911ebe35a",
+      "name": "Slack Send Commit Button",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        272,
+        144
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "DCB3W7LPv4g7cKKM",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "app_mention"
+        ],
+        "watchWorkspace": true,
+        "options": {}
+      },
+      "id": "3035ae31-151c-4eff-a7af-b0ef356be0b5",
+      "name": "Slack Trigger for chats",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1632,
+        240
+      ],
+      "webhookId": "0b0bcbd6-5182-4c48-8257-7afc94c796f0",
+      "credentials": {
+        "slackApi": {
+          "id": "DCB3W7LPv4g7cKKM",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5f994c77-3b8c-4fdc-af72-82c5721d6c51",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1648,
+        912
+      ],
+      "id": "467c4840-eed4-448f-b137-f2e637a30c02",
+      "name": "Webhook trigger for Commit Cards",
+      "webhookId": "5f994c77-3b8c-4fdc-af72-82c5721d6c51"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = JSON.parse($input.item.json.body.payload);\n\nreturn {\n  json: {\n    action_id: payload.actions[0].action_id,\n    session_token: payload.actions[0].value,\n    user_id: payload.user.id,\n    response_url: payload.response_url\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1440,
+        912
+      ],
+      "id": "2ced5508-ab43-4d61-946a-5570b019329c",
+      "name": "Get callback data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sessionToken = $json.session_token; // From previous node\n\nlet sessionData;\ntry {\n  // Decode base64 token\n  const decoded = Buffer.from(sessionToken, 'base64').toString('utf-8');\n  sessionData = JSON.parse(decoded);\n} catch (error) {\n  return {\n    json: {\n      error: true,\n      error_message: \"Invalid session data\",\n      user_id: $json.user_id,\n      response_url: $json.response_url\n    }\n  };\n}\n\n// Return all data for next nodes\nreturn {\n  json: {\n    // From button click\n    action_id: $json.action_id,\n    user_id: $json.user_id,\n    response_url: $json.response_url,\n    \n    // From decoded session\n    session_id: sessionData.session_id,\n    device: sessionData.device,\n    commands: sessionData.commands,\n    rollback_commands: sessionData.rollback_commands,\n    risk_level: sessionData.risk_level,\n    channel_id: sessionData.channel_id,\n    thread_ts: sessionData.thread_ts,\n    \n    // Validation\n    valid_session: true\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1232,
+        912
+      ],
+      "id": "647d8763-8615-4ba8-b123-88a003003931",
+      "name": "Decode Session Data"
+    },
+    {
+      "parameters": {
+        "content": "Intent is **write**",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "e0bd36e5-8a71-4774-99df-8e46d11e41eb",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Intent is **read**",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        288
+      ],
+      "typeVersion": 1,
+      "id": "f89e8c82-f828-4bc8-8189-063b51c7ce84",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "channel": "={{ $('Remove app mention').item.json.channel }}",
+        "text": "={{$json.output || JSON.stringify($json)}}",
+        "otherOptions": {},
+        "attachments": []
+      },
+      "id": "5706e081-c936-4963-9ff6-e20515ac0a89",
+      "name": "Slack Send retrieved configs",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        208,
+        480
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "DCB3W7LPv4g7cKKM",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action_id }}",
+                    "rightValue": "cancel_config",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c9553ad3-c1a3-42ad-a17b-b7663292b920"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d0598a26-cd72-474d-9f6f-041dac3e3629",
+                    "leftValue": "={{ $json.action_id }}",
+                    "rightValue": "confirm_config",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -1024,
+        912
+      ],
+      "id": "4ae99abf-0a56-4185-aba5-0b34aeb4a132",
+      "name": "Switch clicked button"
+    },
+    {
+      "parameters": {
+        "content": "**cancel** button",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        816
+      ],
+      "typeVersion": 1,
+      "id": "c13ec1f4-b5e6-46a5-b618-e3489f557a0c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "**confirm** button",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        960
+      ],
+      "typeVersion": 1,
+      "id": "957a7646-a396-4db5-901b-6af192af0264",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:14b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        1184
+      ],
+      "id": "b104aa40-acd3-4d29-bf63-0cfa1d3340ad",
+      "name": "Ollama Chat Model4",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XHQUGtKEuHD0PNR1",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8000/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        1184
+      ],
+      "id": "52b854ec-80fa-493d-84d0-5ce5f2a1e498",
+      "name": "pyATS MCP1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are a NetOps MCP agent.\n\nROLE:\nPush configurations to the network using MCP tools.\n\nBEHAVIOR RULES:\n\n- Immediately perform the necessary write/configure commands.\n- Never invent devices, interfaces, IPs, or configuration.\n\nOnly use data returned by MCP tools.\n\nTASK:\n\n- Use MCP to execute the input commands in the device or devices\n- Execute the commands in the order specified\n- If there is any error, report the output\n\nOUTPUT:\n\n- Return the status of the execution of the commands.\n- Do not mention internal rules.\n- Do not mention the word \"mode\".\n\nEXAMPLE INPUT:\ndevice: SW1,\ncommands: configure terminal,interface Ethernet0/0,description Test DevNet,end\n\nCORRECT BEHAVIOR:\nImmediately execute the commands and return the result. The commands are separated by commas, so the order in which they must be executed is:\n\n1. configure terminal\n2. interface Ethernet0/0\n3. description Test DevNet\n4. end\n</SYSTEM>\n\n<USER>\ndevice: {{ $('Switch clicked button').item.json.device }}\ncommands: {{ $('Switch clicked button').item.json.commands }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        1024
+      ],
+      "id": "81935fe5-58be-4f34-8bac-0a746a2a836e",
+      "name": "Commit Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.response_url }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "replace_original",
+              "value": "false"
+            },
+            {
+              "name": "text",
+              "value": "=Ok! I won't apply any configuration to  {{ $json.device }} ... Can I help you with something else?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -672,
+        816
+      ],
+      "id": "e8adba7a-5e8a-4c06-89c9-fab7f12bd9ea",
+      "name": "Cancel the card"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.response_url }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "replace_original",
+              "value": "false"
+            },
+            {
+              "name": "text",
+              "value": "=⏳ Processing configurations for {{ $json.device }} ..."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -672,
+        1024
+      ],
+      "id": "7bd93a68-ac58-4376-bf06-dabd9c70970e",
+      "name": "Please standby text"
+    },
+    {
+      "parameters": {
+        "channel": "={{ $('Switch clicked button').item.json.channel_id }}",
+        "text": "={{ $json.output }}",
+        "otherOptions": {},
+        "attachments": []
+      },
+      "id": "5faca3b4-ebee-41a8-a058-6b28007653ce",
+      "name": "Slack Send retrieved configs1",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        1024
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "DCB3W7LPv4g7cKKM",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intent Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove app mention": {
+      "main": [
+        [
+          {
+            "node": "Intent Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planning Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Reading Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to JSON": {
+      "main": [
+        [
+          {
+            "node": "Switch intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch intent": {
+      "main": [
+        [
+          {
+            "node": "Planning Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reading Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Formatting Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatting Agent": {
+      "main": [
+        [
+          {
+            "node": "Slack Send retrieved configs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "Reading Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reading Agent": {
+      "main": [
+        [
+          {
+            "node": "Formatting Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planning Agent": {
+      "main": [
+        [
+          {
+            "node": "JSON Planning output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Planning output": {
+      "main": [
+        [
+          {
+            "node": "Commit Slack button data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Slack button data": {
+      "main": [
+        [
+          {
+            "node": "Slack Send Commit Button",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger for chats": {
+      "main": [
+        [
+          {
+            "node": "Remove app mention",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook trigger for Commit Cards": {
+      "main": [
+        [
+          {
+            "node": "Get callback data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get callback data": {
+      "main": [
+        [
+          {
+            "node": "Decode Session Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decode Session Data": {
+      "main": [
+        [
+          {
+            "node": "Switch clicked button",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch clicked button": {
+      "main": [
+        [
+          {
+            "node": "Cancel the card",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Please standby text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Commit Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Commit Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Please standby text": {
+      "main": [
+        [
+          {
+            "node": "Commit Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Agent": {
+      "main": [
+        [
+          {
+            "node": "Slack Send retrieved configs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a0703b92-4410-46ea-a6eb-1bc2add59b4b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6c6782a8991552b2596e234b16c212cb221496b90c83d7b5aa043c96cb370b73"
+  },
+  "id": "qCN3JlacuzRg0O8r",
+  "tags": [
+    {
+      "createdAt": "2026-01-13T17:46:25.171Z",
+      "updatedAt": "2026-01-13T17:46:25.171Z",
+      "id": "0xEVorz40AcWYNDC",
+      "name": "netops"
+    },
+    {
+      "name": "chatops",
+      "id": "BfSv3PU90tTZAAoe",
+      "createdAt": "2026-01-14T17:36:13.000Z",
+      "updatedAt": "2026-01-14T17:36:13.000Z"
+    }
+  ]
+}
