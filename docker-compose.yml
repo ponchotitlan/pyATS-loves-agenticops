@@ -16,7 +16,7 @@ services:
 
       # Webhook URL - Get your static domain from https://dashboard.ngrok.com/cloud-edge/domains
       # Then replace YOUR-STATIC-DOMAIN below with it (e.g., abc-123-def.ngrok-free.app)
-      - WEBHOOK_URL=uYOUR-STATIC-DOMAIN
+      - WEBHOOK_URL=YOUR-STATIC-DOMAIN
       
     volumes:
       - n8n_data:/home/node/.n8n
@@ -35,7 +35,7 @@ services:
     command:
       - "http"
       - "n8n:5678"
-      - "--domain=uYOUR-STATIC-DOMAIN"
+      - "--domain=YOUR-STATIC-DOMAIN"
     environment:
       # Get your auth token from https://dashboard.ngrok.com/get-started/your-authtoken
       - NGROK_AUTHTOKEN=YOUR-TOKEN
