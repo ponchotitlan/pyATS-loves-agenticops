@@ -61,7 +61,7 @@ Clean separation of concerns:
    - Loads its prompt from GitHub  
    - Analyzes the generated report  
    - If risks/recommendations exist:
-     - 🎫 Creates a GitHub Issue including:
+     - 🎫 Creates a [GitHub Issue](https://github.com/ponchotitlan/pyATS-loves-agenticops/issues) including:
        - Priority  
        - Summary  
        - Detailed description  

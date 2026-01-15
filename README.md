@@ -38,7 +38,7 @@ Operate your network directly from Slack using a multi-agent architecture.
 
 
 📁 More information:  
-[Agentic ChatOps for network automation using n8n + Slack + pyATS MCP]()
+[Agentic ChatOps for network automation using n8n + Slack + pyATS MCP](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/chatops_workflow.md)
 
 ---
 
@@ -60,7 +60,7 @@ An autonomous pipeline for **continuous network reporting and GitHub-native reme
 - GitOps-style operational governance  
 
 📁 More information:  
-[Agentic reporting + GitHub issue automation using n8n + pyATS MCP]()
+[Agentic reporting + GitHub issue automation using n8n + pyATS MCP](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/reporting_ticketing_workflow.md)
 
 ---
 
