@@ -1,6 +1,6 @@
 <h1 align="center">pyATS 🫰 AgenticOps<br /><br />
 <div align="center">
-<!-- <img src="radkit_agenticops_logo.png" width="300"/> -->
+<img src="images/pyATS_logoAsset.png"/>
 </div>
 
 <div align="center">

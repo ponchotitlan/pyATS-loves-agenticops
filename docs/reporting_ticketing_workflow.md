@@ -1,5 +1,9 @@
 # 📊 Agentic Reporting & Automated Ticketing (n8n + GitHub + pyATS MCP)
 
+<div align="center">
+<img src="../images/reporting_workflow.png"/>
+</div>
+
 An **agentic n8n workflow** that automatically:
 
 - 🧠 Investigates network state

@@ -1,5 +1,10 @@
 # ⚙️ ChatOps Agentic Network Automation Workflow (n8n + Slack)
 
+<div align="center">
+<img src="../images/chatops_workflow_read.png"/>
+<img src="../images/chatops_workflow_write.png"/>
+</div>
+
 A practical **low-code, agentic ChatOps workflow** built in **n8n** for safe network automation via **Slack**.  
 Uses **multiple specialized agents**, structured guardrails, and real device interaction through **pyATS MCP**.
 
@@ -60,6 +65,12 @@ Result: **predictable, inspectable, auditable automation**.
    - ❌ Cancel → nothing happens
    - ✅ Confirm → Commit Agent → **pyATS MCP pushes configuration**
 5. Result posted back to the same Slack thread
+
+<div align="center">
+<img src="../images/slack_inventory.png"/>
+<img src="../images/slack_read.png"/>
+<img src="../images/slack_write.png"/>
+</div>
 
 ---
 
