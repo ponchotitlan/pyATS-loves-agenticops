@@ -114,7 +114,7 @@ This cleanly separates:
 You’ll need:
 
 - n8n (self-hosted)
-- Slack App (mentions + interactive buttons enabled)
+- Slack App (mentions + interactive buttons enabled) - [🔗 Check this frustration-free guide](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/chatops_slack_setup.md)
 - Ollama with your preferred model
 - [pyATS MCP server](https://github.com/ponchotitlan/pyATS_MCP) running in HTTP transport mode
 
