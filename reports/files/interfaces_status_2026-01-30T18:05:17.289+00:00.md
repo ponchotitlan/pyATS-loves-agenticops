@@ -1,5 +1,3 @@
-## Phase 3: Interface Status Summary Report
-
 # Interface Status Summary - Device R1
 
 ## Executive Summary
