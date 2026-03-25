@@ -14,7 +14,7 @@
 </h1>
 
 <div align="center">
-A collection of <strong>low-code</strong>, AgenticOps workflows based on <strong>n8n, MCP and Cisco pyATS</strong> for some nice Network Automation experiments 🧪
+A collection of <strong>low-code</strong>, AgenticOps workflows based on <strong>n8n, MCP and Cisco pyATS</strong> for network automation experiments across ChatOps and reporting use cases 🧪
 <br /><br />
 </div>
 
@@ -23,10 +23,10 @@ A collection of <strong>low-code</strong>, AgenticOps workflows based on <strong
 ## 📦 Included projects
 
 ### ⚙️ 1. ChatOps Agentic Network Automation
-Operate your network directly from Slack using a multi-agent architecture.
+Operate your network directly from Slack or Webex Teams using a multi-agent architecture.
 
 **Highlights**
-- 💬 Slack-based ChatOps interface  
+- 💬 Slack and Webex Teams ChatOps interfaces  
 - 🧠 Multiple specialized agents (intent, planning, read, commit, formatting)  
 - 🛡️ Guardrails with human approval before writes  
 - 🔌 Real execution via **pyATS MCP**  
@@ -39,7 +39,8 @@ Operate your network directly from Slack using a multi-agent architecture.
 
 
 📁 More information:  
-[Agentic ChatOps for network automation using n8n + Slack + pyATS MCP](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/chatops_workflow.md)
+[Agentic ChatOps for network automation using n8n + Slack + pyATS MCP](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/chatops_slack_workflow.md)  
+[Agentic ChatOps for network automation using n8n + Webex Teams + pyATS MCP](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/chatops_wxt_workflow.md)
 
 ---
 
@@ -67,40 +68,68 @@ An autonomous pipeline for **continuous network reporting and GitHub-native reme
 
 ## ⚙️ General setup
 
-Clone the pyATS MCP repository:
-
-```
-git clone https://github.com/ponchotitlan/pyATS_MCP
-```
-
-Follow the instructions in the README of this repository to setup the MCP server in **HTTP mode**. Afterwards, clone this repository:
+Clone this repository:
 
 ```
 git clone https://github.com/ponchotitlan/pyATS-loves-agenticops
 ```
 
-Open the `docker-compose.yml` file and update the following parameters of the services:
+Then choose one of the included Docker Compose examples and copy it to `docker-compose.yml`:
 
 ```
-# Webhook URL - Get your static domain from https://dashboard.ngrok.com/cloud-edge/domains
-# Then replace YOUR-STATIC-DOMAIN below with it (e.g., abc-123-def.ngrok-free.app)
-- WEBHOOK_URL=uYOUR-STATIC-DOMAIN
-
-ngrok:
-. . .
-- "--domain=YOUR-STATIC-DOMAIN"
-
-# Get your auth token from https://dashboard.ngrok.com/get-started/your-authtoken
-- NGROK_AUTHTOKEN=YOUR-TOKEN
+cp docker-compose-example-cloudflare.yml docker-compose.yml
 ```
 
-Execute the following command to create a ngrok and n8n pair of containers:
+or:
 
 ```
+cp docker-compose-example-ngrok.yml docker-compose.yml
+```
+
+### Cloudflare Docker Compose setup
+
+Use `docker-compose-example-cloudflare.yml` when you want n8n exposed through a Cloudflare Tunnel.
+
+- Replace `YOUR_DOMAIN` in these n8n settings with your public hostname, for example `n8n.example.com`:
+  - `WEBHOOK_URL=https://YOUR_DOMAIN`
+  - `N8N_HOST=YOUR_DOMAIN`
+  - `N8N_EDITOR_BASE_URL=https://YOUR_DOMAIN`
+- Replace `YOUR_TUNNEL_TOKEN` with the token from the Cloudflare Zero Trust dashboard
+
+### ngrok Docker Compose setup
+
+Use `docker-compose-example-ngrok.yml` when you want to expose n8n through ngrok.
+
+- Reserve a static ngrok domain in your ngrok dashboard
+- Replace `YOUR-STATIC-DOMAIN` in these settings with that domain:
+  - `WEBHOOK_URL=https://YOUR-STATIC-DOMAIN`
+  - `N8N_HOST=YOUR-STATIC-DOMAIN`
+  - `N8N_EDITOR_BASE_URL=https://YOUR-STATIC-DOMAIN`
+  - `--domain=YOUR-STATIC-DOMAIN`
+- Replace `YOUR-TOKEN` with your ngrok authtoken
+
+### Shared pyATS MCP setup
+
+Both Docker Compose examples already contain the same `pyats-mcp` service. Verify these shared settings:
+
+- `MCP_TRANSPORT: http` keeps the MCP server in HTTP mode, which is what these workflows expect
+- `MCP_HOST: 0.0.0.0` exposes the MCP server on all container interfaces
+- `MCP_PORT: 8000` publishes the MCP API on port 8000 inside the Docker network and on the host
+- `ports: - "8000:8000"` exposes the same MCP port on the host
+- `./testbed.yaml:/app/testbed.yaml:ro` mounts your pyATS inventory file read-only into the container
+- Replace `./testbed.yaml` with your own inventory before starting the stack
+
+If you need a different MCP port, change both `MCP_PORT` and the published port mapping together so they stay consistent.
+
+After the compose file is configured, start the services:
+
+```bash
 docker compose up -d
 ```
 
-To stop the services, issue the following command:
+This starts n8n, the selected tunnel service, and the shared `pyats-mcp` container.
+
+To stop the services:
 
 ```
 docker compose down

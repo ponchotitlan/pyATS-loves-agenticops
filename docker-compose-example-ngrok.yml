@@ -1,6 +1,6 @@
 services:
   n8n:
-    image: n8nio/n8n:1.116.2
+    image: n8nio/n8n:latest
     container_name: n8n
     restart: unless-stopped
     ports:
@@ -16,7 +16,12 @@ services:
 
       # Webhook URL - Get your static domain from https://dashboard.ngrok.com/cloud-edge/domains
       # Then replace YOUR-STATIC-DOMAIN below with it (e.g., abc-123-def.ngrok-free.app)
-      - WEBHOOK_URL=YOUR-STATIC-DOMAIN
+      - WEBHOOK_URL=https://YOUR-STATIC-DOMAIN
+      - N8N_HOST=YOUR-STATIC-DOMAIN
+      - N8N_PROTOCOL=https
+      - N8N_PORT=5678
+      - N8N_EDITOR_BASE_URL=https://YOUR-STATIC-DOMAIN
+      - N8N_PROXY_HOPS=1
       
     volumes:
       - n8n_data:/home/node/.n8n
@@ -26,7 +31,10 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 90s
+    entrypoint: ["sh", "-c", "sleep 20 && n8n start"]
+    networks:
+      - internal
 
   ngrok:
     image: ngrok/ngrok:latest
@@ -43,7 +51,31 @@ services:
       - "4040:4040"
     depends_on:
       - n8n
+    networks:
+      - internal
+
+  pyats-mcp:
+    build:
+      context: https://github.com/ponchotitlan/pyATS_MCP.git
+      dockerfile: Dockerfile
+    image: pyats-mcp:latest
+    container_name: pyats-mcp
+    environment:
+      MCP_TRANSPORT: http
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 8000
+    volumes:
+      - ./testbed.yaml:/app/testbed.yaml:ro
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - internal
 
 volumes:
   n8n_data:
     driver: local
+
+networks:
+  internal:
+    driver: bridge

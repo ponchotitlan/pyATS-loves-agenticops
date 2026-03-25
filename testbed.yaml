@@ -1,0 +1,23 @@
+# Testbed based on the devices avilable in the Cisco Modeling Labs - Always-On Sandbox
+# You can reserve and launch it for free at https://devnetsandbox.cisco.com/DevNet/catalog/cml-sandbox_cml
+# Make sue to login to the address provided via e-mail using a VPN client
+# This VPN shall be deployed in the same environment where this MCP server is located at
+
+# If you wish to provide your own devices, please follow the structure below and adjust the parameters accordingly
+---
+devices:
+  xrd-1:
+    os: iosxr
+    type: router
+    platform: xrd
+    credentials:
+      default:
+        username: alfsando
+        password: M4_j6D2a5XXc_W
+    connections:
+      cli:
+        protocol: ssh
+        ip: sandbox-iosxr-1.cisco.com
+        timeout: 120
+        arguments:
+          ssh_options: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
