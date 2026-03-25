@@ -1,1 +1,2 @@
 docker-compose-example.yml
+*.pem

@@ -27,11 +27,11 @@ Uses **multiple specialized agents**, structured guardrails, and real device int
 
 | Agent | Responsibility | Can Execute Writes? |
 |------|----------------|----------------------|
-| Intent Agent | Classifies `read` vs `write`, extracts structured JSON | ❌ |
+| Intent Agent | Classifies `read` vs `write`, extracts structured JSON payload | ❌ |
 | Reading Agent | Executes operational queries via **pyATS MCP** | ❌ (read-only) |
-| Planning Agent | Generates CLI plan, risk level, rollback | ❌ |
+| Planning Agent | Generates CLI plan, risk level, and rollback commands | ❌ |
 | Commit Agent | Pushes approved configs via **pyATS MCP** | ✅ (after approval) |
-| Formatting Agent | Formats clean Slack responses | ❌ |
+| Formatting Agent | Formats clean Slack replies for the thread | ❌ |
 
 This separation ensures **no single agent has full power**.
 
@@ -119,9 +119,49 @@ You’ll need:
 - [pyATS MCP server](https://github.com/ponchotitlan/pyATS_MCP) running in HTTP transport mode
 
 Then:
+- Pick one Docker Compose example and copy it to `docker-compose.yml`
+- Configure the tunnel-specific settings for your chosen option
+- Configure the shared pyATS MCP settings
 - Import the workflow JSON into n8n
 - Update credentials (Slack, Ollama)
 - Adjust MCP endpoint URL
+
+### Cloudflare Docker Compose setup
+
+Use `docker-compose-example-cloudflare.yml` when you want n8n exposed through a Cloudflare Tunnel.
+
+- Copy `docker-compose-example-cloudflare.yml` to `docker-compose.yml`
+- Replace `YOUR_DOMAIN` in these n8n settings with your public hostname, for example `n8n.example.com`:
+   - `WEBHOOK_URL=https://YOUR_DOMAIN`
+   - `N8N_HOST=YOUR_DOMAIN`
+   - `N8N_EDITOR_BASE_URL=https://YOUR_DOMAIN`
+- Replace `YOUR_TUNNEL_TOKEN` with the token from the Cloudflare Zero Trust dashboard
+
+### ngrok Docker Compose setup
+
+Use `docker-compose-example-ngrok.yml` when you want to expose n8n through ngrok.
+
+- Copy `docker-compose-example-ngrok.yml` to `docker-compose.yml`
+- Reserve a static ngrok domain in your ngrok dashboard
+- Replace `YOUR-STATIC-DOMAIN` in these settings with that domain:
+   - `WEBHOOK_URL=https://YOUR-STATIC-DOMAIN`
+   - `N8N_HOST=YOUR-STATIC-DOMAIN`
+   - `N8N_EDITOR_BASE_URL=https://YOUR-STATIC-DOMAIN`
+   - `--domain=YOUR-STATIC-DOMAIN`
+- Replace `YOUR-TOKEN` with your ngrok authtoken
+
+### Shared pyATS MCP setup
+
+Both Docker Compose examples already contain the same `pyats-mcp` service. Verify these shared settings:
+
+- `MCP_TRANSPORT: http` keeps the MCP server in HTTP mode, which is what this workflow expects
+- `MCP_HOST: 0.0.0.0` exposes the MCP server on all container interfaces
+- `MCP_PORT: 8000` publishes the MCP API on port 8000 inside the Docker network and on the host
+- `ports: - "8000:8000"` exposes the same MCP port on the host
+- `./testbed.yaml:/app/testbed.yaml:ro` mounts your pyATS inventory file read-only into the container
+- Replace `./testbed.yaml` with your own inventory file contents before starting the stack
+
+If you need a different MCP port, change both `MCP_PORT` and the published port mapping together so they stay consistent.
 
 ---
 
