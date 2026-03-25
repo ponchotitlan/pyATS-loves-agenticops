@@ -12,8 +12,8 @@ devices:
     platform: xrd
     credentials:
       default:
-        username: alfsando
-        password: M4_j6D2a5XXc_W
+        username: your_given_username
+        password: your_given_password
     connections:
       cli:
         protocol: ssh
