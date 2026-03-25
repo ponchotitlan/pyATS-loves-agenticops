@@ -1,0 +1,1517 @@
+{
+  "name": "(WxT) ChatOps Network Automation Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are Packetl, an intent extraction agent for network automation.  \nOutput JSON only. No explanations.\n\nINTENT: \"read\", \"write\", \"other\". One per message.\n\nCONTEXT:\n- Use previous messages to resolve references.\n- Multiple devices → multiple ops.\n- Use null only if missing.\n\nSCHEMA:\n{\n  \"intent\": \"read\" | \"write\" | \"other\",\n  \"action\": \"<high-level action>\",\n  \"format\": \"text\" | \"table\" | \"json\" | \"card\" | \"raw\",\n  \"ops\": [\n    {\n      \"device\": \"<device or null>\",\n      \"params\": { ... }\n    }\n  ],\n  \"roomID\": \"room ID provided by the user\",\n  \"messageID\": \"message ID provided by the user\"\n}\n\nINTENT RULES:\n- read: show, get, list, check, query\n- write: change, configure, update, delete, set\n- other: non-network requests\n- no network action → \"other\"\n\nFORMAT RULES:\n- \"table\" → if user asks for table, list, structured view\n- \"json\" → if user explicitly asks for JSON\n- \"card\" → if user asks for UI/visual/summary card\n- \"raw\" → if user asks for raw output/CLI\n- default → \"text\"\n\nEXTRACTION:\n- Never invent values\n- Extract concrete params\n- Each device → one op\n\nEXAMPLES:\n\nInput: show interfaces on SW1  \nOutput: {\"intent\":\"read\",\"action\":\"show interfaces\",\"format\":\"text\",\"ops\":[{\"device\":\"SW1\",\"params\":{}}]}\n\nInput: render a table with device inventory  \nOutput: {\"intent\":\"other\",\"action\":\"list inventory\",\"format\":\"table\",\"ops\":[{\"device\":null,\"params\":{}}]}\n\nInput: show vlans in json on SW1  \nOutput: {\"intent\":\"read\",\"action\":\"list vlans\",\"format\":\"json\",\"ops\":[{\"device\":\"SW1\",\"params\":{}}]}\n\n</SYSTEM>\n\n<USER>\n{{ $json.text }}\nRoom ID: {{ $json.roomId }}\nMessage ID: {{ $json.id }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -384,
+        0
+      ],
+      "id": "059f58c8-5a9f-4877-888d-ba60334f9f8e",
+      "name": "Intent Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  let outputText = item.json.output;\n  \n  // Remove markdown code block markers (```json and ```)\n  outputText = outputText.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\n  \n  // Parse the JSON string into an object\n  const parsedJson = JSON.parse(outputText);\n  \n  return { json: parsedJson };\n});\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "f8476635-0351-4d0b-825e-ab0397547a60",
+      "name": "Convert to JSON"
+    },
+    {
+      "parameters": {
+        "url": "=https://webexapis.com/v1/messages/{{ $json.body.data.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "ciscoWebexOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -576,
+        0
+      ],
+      "id": "2f1bef41-7623-4eba-b971-c3d34f056008",
+      "name": "Get message content",
+      "credentials": {
+        "ciscoWebexOAuth2Api": {
+          "id": "kSYk9xBI2Awd8AxG",
+          "name": "Cisco Webex account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -448,
+        192
+      ],
+      "id": "7b69011b-9e10-471f-879e-eb53731af9b0",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "2YEW9IoYdVVUi9mK",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Get message content').item.json.roomId }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        192
+      ],
+      "id": "072880ee-71ee-4588-8c34-81a6221c7bb5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://pyats-mcp:8000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "pyats_list_devices"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        -32
+      ],
+      "id": "fff6d752-591e-4d0f-9b5e-a2db260a856c",
+      "name": "pyATS MCP"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are Packetl, a network automation assistant for ChatOps via Webex.\n\nOutput plain text or Webex-compatible markdown depending on requested format.\nNever output JSON.\n\nINPUT:\nYou may receive a structured request including:\n- intent\n- action\n- format: \"text\" | \"table\" | \"json\" | \"card\" | \"raw\"\n\nROLE:\n- Handle \"other\" intent (general chat, capabilities, inventory requests).\n- Answer briefly and clearly.\n- Redirect out-of-scope queries to the network admin team.\n- Fetch device inventory via MCP ONLY when action involves inventory/devices.\n\nCAPABILITIES (summarise when asked):\n- Read: inventory, interfaces, VLANs, routing, device info\n- Write: descriptions, VLANs, interface config\n- Access via Webex by tagging Packetl\n\nMCP TOOL USAGE:\n- Use MCP ONLY for inventory/device listing\n- Never use MCP for configs, CLI, or writes\n\nFORMAT RULES:\n- \"text\" → short plain sentence(s)\n- \"table\" → markdown table inside of a code block(Webex-compatible)\n- \"json\" → return raw JSON-like text (no code block)\n- \"card\" → structured, readable sections\n- \"raw\" → minimal unformatted output\n- If no format provided → default to \"text\"\n\nRULES:\n- Never invent device data\n- Never execute network commands\n- If unsure → say so and redirect\n- Keep responses ≤3 sentences unless listing inventory\n- Respect requested format strictly\n\nEXAMPLES:\n\nInput:\n{\"intent\":\"other\",\"action\":\"list inventory\",\"format\":\"table\",\"ops\":[{\"device\":null,\"params\":{}}]}\n\nOutput:\n```\nDevice | Vendor | Status\nSW1 | Cisco | Active\nR1 | Juniper | Active\n```\n\nInput:\n{\"intent\":\"other\",\"action\":\"list inventory\",\"format\":\"text\",\"ops\":[{\"device\":null,\"params\":{}}]}\n\nOutput:\nYou have 2 devices: SW1 and R1.\n\nInput:\nHello\nOutput:\nHey! I am Packetl, your network automation assistant. Tag me with a command to get started.\n\nInput:\nCan you book a meeting?\nOutput:\nThat is outside my scope. I handle network automation tasks only. Please contact your network admin team.\n\n</SYSTEM>\n\n<USER>\nAction: {{ $json.action }}\nFormat: {{ $json.format }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        -192
+      ],
+      "id": "237d40fa-5e5e-4303-aa43-20e9efc8843b",
+      "name": "General Chat Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        -48
+      ],
+      "id": "ce856a53-0369-4625-9206-1957554a4276",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "2YEW9IoYdVVUi9mK",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webexapis.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "roomId",
+              "value": "={{ $('Webex Bot Webhook').item.json.body.data.roomId }}"
+            },
+            {
+              "name": "markdown",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        784,
+        -192
+      ],
+      "id": "b62b3c71-4ee1-43d8-9d58-b66cccd798f8",
+      "name": "Webex Reply to Message",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aXEavxGGnMhYorAR",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        320
+      ],
+      "id": "902ceaca-2179-436e-9b0f-653438e50626",
+      "name": "Anthropic Chat Model2",
+      "credentials": {
+        "anthropicApi": {
+          "id": "2YEW9IoYdVVUi9mK",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://pyats-mcp:8000/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        320
+      ],
+      "id": "0c500b92-e8cc-4874-9748-3d449c9bb6c7",
+      "name": "pyATS MCP1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are Packetl, a network inventory validation agent.\nOutput raw JSON only. No markdown. No code fences. No backticks. No explanations.\n\nPROCESS:\n1. Receive ops from Intent Agent.\n2. ALWAYS call the MCP inventory tool to check each device. Never skip this step.\n3. Enrich each op with validity, reachability, vendor, and OS from the MCP response.\n4. If MCP returns no match, mark the device as invalid with an error.\n\nSCHEMA:\n{\n  \"validated_ops\": [\n    {\n      \"device\": \"<name>\",\n      \"valid\": <boolean>,\n      \"reachable\": <boolean>,\n      \"vendor\": \"<string|null>\",\n      \"os\": \"<string|null>\",\n      \"params\": { ... },\n      \"error\": \"<string|null>\"\n    }\n  ],\n  \"roomID\": \"room ID provided by the user\",\n  \"messageID\": \"message ID provided by the user\",\n  \"intent\": \"intent provided by the user\",\n  \"action\": \"action provided by the user\",\n  \"format\": \"format provided by the user\"\n}\n\nRULES:\n- If \"device\" is null → \"valid\": false, \"error\": \"No device specified\".\n- If MCP returns no match → \"valid\": false, \"error\": \"Device not found\".\n- If MCP confirms device but unreachable → \"valid\": false, \"error\": \"Device not reachable\".\n- If MCP confirms device and reachable → \"valid\": true, \"error\": null.\n- Preserve all original params without modification.\n- STRICT: Always call MCP inventory tool first. Never assume validity without a tool response.\n</SYSTEM>\n\n<USER>\n{{ JSON.stringify($json.ops) }}\nRoom ID: {{ $json.roomID }}\nMessage ID: {{ $json.messageID }}\nIntent: {{ $json.intent }}\nFormat: {{ $json.format }}\nAction: {{ $json.action }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        144
+      ],
+      "id": "bd6198af-8dc8-4fa8-b847-092580945b09",
+      "name": "Validator Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  let outputText = item.json.output;\n  \n  // Remove markdown code block markers (```json and ```)\n  outputText = outputText.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\n  \n  // Parse the JSON string into an object\n  const parsedJson = JSON.parse(outputText);\n  \n  return { json: parsedJson };\n});\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        144
+      ],
+      "id": "8d793887-1dad-48df-9239-4ac13f8afabc",
+      "name": "Convert to JSON1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webexapis.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "roomId",
+              "value": "={{ $json.roomID }}"
+            },
+            {
+              "name": "markdown",
+              "value": "=🔥 Device `{{ $json.validated_ops[0].device }}` is not part of the inventory. Please ask me about a different device."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1040,
+        256
+      ],
+      "id": "88814644-22ce-4cd0-a728-cd94238e415b",
+      "name": "Webex Reply Something Wrong with the Device",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aXEavxGGnMhYorAR",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webex-chatops",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -784,
+        0
+      ],
+      "id": "40ce3f16-6f8f-4ecb-ba80-c59bd733f5a0",
+      "name": "Webex Bot Webhook",
+      "webhookId": "fa013a5b-be3d-4a01-b5c6-0003bcc8901e"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "read",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c2008364-66f3-4060-85a3-dd89f250d2ce"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Read"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d3155661-4301-4759-bd0d-ef575a765f66",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "write",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Write"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        16
+      ],
+      "id": "e663a837-4852-4d42-8a04-c7da16cd2e48",
+      "name": "Is Read or Write"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "822a0769-3d24-4fdc-8602-250aa25fa4a4",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "other",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Other"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "=^(read|write)$",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "id": "046212f9-ddba-4774-80cb-989e3796240a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "R/W"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        96,
+        0
+      ],
+      "id": "b0e89fb4-fd87-4580-9624-8790d6fc2088",
+      "name": "Is R/W or other?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ff9bcd33-e119-4381-b994-3726adcf2063",
+                    "leftValue": "={{ $json.validated_ops[0].valid }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Valid"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.validated_ops[0].valid }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "id": "cedb2fb4-f496-405f-9620-140dfbdbfe2c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Not Valid"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        144
+      ],
+      "id": "e6c16d4c-06c6-4f62-83d9-c2b781de589c",
+      "name": "Is Valid or Not Valid?"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "1371ad1b-b11f-4741-98df-edb751bf01dd",
+      "name": "Anthropic Chat Model3",
+      "credentials": {
+        "anthropicApi": {
+          "id": "2YEW9IoYdVVUi9mK",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://pyats-mcp:8000/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        1456,
+        0
+      ],
+      "id": "466579d9-6861-4b84-8000-50e917794be7",
+      "name": "pyATS MCP2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webexapis.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "roomId",
+              "value": "={{ $('Is Read or Write').item.json.roomID }}"
+            },
+            {
+              "name": "markdown",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1616,
+        -192
+      ],
+      "id": "59e4cb14-863c-49c3-a124-8672fdd0b1d4",
+      "name": "Webex Reply to Message1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aXEavxGGnMhYorAR",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are Packetl Read Agent.\n\nOutput ONLY final user-facing text.\n\nINPUT:\nStructured request:\n- action\n- format\n- ops: [{ device, params }]\n\nROLE:\n- Execute read-only operations via MCP server.\n- Fetch real device data (no assumptions).\n- Render output based on format.\n\nMCP RULES:\n- ALWAYS call MCP to retrieve device data.\n- NEVER simulate or invent responses.\n- If MCP fails or device not found → report clearly.\n\nEXECUTION:\n- For each op:\n  - Query MCP with device + params\n- Combine results cleanly.\n\nFORMAT RULES:\n- text → short readable sentences\n- table → markdown table inside a code block\n- json → raw JSON text (no code block)\n- card → structured sections (Device, Result, Notes)\n- raw → minimal, unformatted output\n- default → text with markdown formatting\n\nTABLE RULES:\n- MUST use code block\n- Columns based on returned data\n- Keep concise\n\nMULTI-DEVICE:\n- Separate results per device\n- Keep consistent structure\n\nERROR HANDLING:\n- If partial failure → show success + failure per device\n- If no data → say \"No data returned\"\n\nCONSTRAINTS:\n- Do not modify anything (read-only)\n- Do not expose MCP internals\n- Keep output concise unless table/card\n\nEXAMPLES:\n\nInput:\n{intent:\"read\",action:\"show interfaces\",format:\"table\",ops:[{device:\"SW1\",params:{}}]}\n\nOutput:\n```\nInterface | Status | VLAN\nEth0/0 | up | 10\nEth0/1 | down | 20\n```\n\n\nInput:\n{intent:\"read\",action:\"list vlans\",format:\"text\",ops:[{device:\"SW1\",params:{}}]}\n\nOutput:\nSW1 has VLANs 10, 20, and 30 configured.\n\nInput:\n{intent:\"read\",action:\"show interfaces\",format:\"text\",ops:[{device:\"SW1\"},{device:\"R1\"}]}\n\nOutput:\nSW1 interfaces retrieved successfully. R1 could not be reached.\n\n</SYSTEM>\n\n<USER>\nAction: {{ $json.action }}\nFormat: {{ $json.format }}\nOps: {{ JSON.stringify($json.validated_ops) }}\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1296,
+        -192
+      ],
+      "id": "a9ff5c4b-fe3a-4487-ab30-6a0dcf586a95",
+      "name": "Reading Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are Packetl Planning Agent, a CCIE-level network expert.\n\nOutput ONLY valid JSON. No explanations. No markdown.\n\nINPUT:\n- action\n- ops: [{ device, params, vendor, platform }]\n\nROLE:\n- Generate correct CLI configs per device.\n- Use vendor/platform-specific syntax.\n\nOUTPUT:\n{\n  \"execution_id\": \"<unique_id>\",\n  \"plans\": [\n    {\n      \"device\": \"<device>\",\n      \"commands\": [\"cmd1\", \"cmd2\"],\n      \"cli\": \"<multi-line CLI with indentation>\"\n    }\n  ]\n}\n\nRULES:\n- ONLY configuration commands\n- No show commands\n- No explanations\n- Skip ops with missing data\n- Skip unknown vendors/platforms\n- Merge ops per device\n\nCLI RULES:\n- Must match commands exactly\n- Use newline separation\n- Preserve indentation (e.g. interface subcommands)\n\nVENDOR:\n- Cisco IOS/XE → configure terminal, interface...\n- NX-OS → similar to IOS\n- JunOS → set ...\n- Arista EOS → Cisco-like\n\nCONSTRAINTS:\n- No \"write memory\"\n- No \"commit\"\n- JSON must be valid\n- If nothing valid → plans = []\n\n</SYSTEM>\n<USER>\nAction: {{ $json.action }}\nOps: {{ JSON.stringify($('Is Valid or Not Valid?').item.json.validated_ops) }}\n\n</USER>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1296,
+        192
+      ],
+      "id": "14f7f43f-c2b4-40a6-8542-5b3e144d0152",
+      "name": "Planning Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1296,
+        368
+      ],
+      "id": "5583a2ac-bcf5-4f1f-a95a-85900de4e1e1",
+      "name": "Anthropic Chat Model4",
+      "credentials": {
+        "anthropicApi": {
+          "id": "2YEW9IoYdVVUi9mK",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const store = $getWorkflowStaticData('global');\n\n// store using execution_id\nstore[$json.execution_id] = {\n  device: $json.plans[0].device,\n  commands: $json.plans[0].commands,\n  cli: $json.plans[0].cli\n};\n\nreturn $json;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        192
+      ],
+      "id": "44f0aeac-ba7b-4f60-85ed-ce330df4e718",
+      "name": "Store plan"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  let outputText = item.json.output;\n  \n  // Remove markdown code block markers (```json and ```)\n  outputText = outputText.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\n  \n  // Parse the JSON string into an object\n  const parsedJson = JSON.parse(outputText);\n  \n  return { json: parsedJson };\n});\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        192
+      ],
+      "id": "e62b1f4c-a098-46b6-b007-e0f06773120f",
+      "name": "Convert to JSON2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webexapis.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"roomId\": \"{{ $('Is Read or Write').item.json.roomID }}\",\n  \"markdown\": \"⚙️ Would you like me to apply this config?\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.2\",\n        \"body\": [\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"📦 Device: {{$json.plans[0].device}}\",\n            \"weight\": \"Bolder\"\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"{{ JSON.stringify($json.plans[0].cli).slice(1, -1) }}\",\n            \"wrap\": true,\n            \"fontType\": \"Monospace\"\n          }\n        ],\n        \"actions\": [\n          {\n            \"type\": \"Action.Submit\",\n            \"title\": \"🚀 Apply this config\",\n            \"data\": {\n              \"action\": \"apply\",\n              \"execution_id\": \"{{$json.execution_id}}\",\n              \"device\": \"{{$json.plans[0].device}}\",\n              \"cli\": \"{{ JSON.stringify($json.plans[0].cli).slice(1, -1) }}\",\n              \"roomId\": \"{{ $('Is Read or Write').item.json.roomID }}\"\n            }\n          },\n          {\n            \"type\": \"Action.Submit\",\n            \"title\": \"❌ Reject this config\",\n            \"data\": {\n              \"action\": \"reject\",\n              \"execution_id\": \"{{$json.execution_id}}\",\n              \"device\": \"{{$json.plans[0].device}}\",\n              \"cli\": \"{{ JSON.stringify($json.plans[0].cli).slice(1, -1) }}\",\n              \"roomId\": \"{{ $('Is Read or Write').item.json.roomID }}\"\n            }\n          }\n        ]\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1968,
+        192
+      ],
+      "id": "ccd54122-f726-410a-9660-48d07326231c",
+      "name": "Webex Reply with Config Card",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aXEavxGGnMhYorAR",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webex-actions",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -784,
+        736
+      ],
+      "id": "a9ab2f9d-7cd3-4978-b2a6-e5b62cbde173",
+      "name": "Webex Card Webhook",
+      "webhookId": "fa013a5b-be3d-4a01-b5c6-0003bcc8901e"
+    },
+    {
+      "parameters": {
+        "url": "=https://webexapis.com/v1/attachment/actions/{{ $json.body.data.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -592,
+        736
+      ],
+      "id": "359457be-5052-460f-b813-2c805aef218e",
+      "name": "Get card contents",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "P02TvfFifUWdNMQv",
+          "name": "Webex Bot Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Get card contents').item.json.inputs.action }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "bf9df622-c8e7-46f1-a7f8-a0908af6d462"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Reject"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "62078b67-41d3-4813-b8b6-dee5b1dc66c2",
+                    "leftValue": "={{ $('Get card contents').item.json.inputs.action }}",
+                    "rightValue": "apply",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Apply"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -288,
+        736
+      ],
+      "id": "bbdeaf9e-0d42-444c-ad6d-92e3660ef5c2",
+      "name": "Yay or Nay"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://webexapis.com/v1/messages/{{$json.messageId}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -432,
+        736
+      ],
+      "id": "5f1da9cd-9864-424d-89dc-d9993f7c687b",
+      "name": "Dismiss card",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "P02TvfFifUWdNMQv",
+          "name": "Webex Bot Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webexapis.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "roomId",
+              "value": "={{ $('Get card contents').item.json.roomId }}"
+            },
+            {
+              "name": "markdown",
+              "value": "=😉 Alright! I won't apply any configurations for now. Is there anything else I can help you with?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -48,
+        608
+      ],
+      "id": "ecaadbe2-b297-4541-b3f6-23853ecf4aaa",
+      "name": "Webex Reply Nothing To Be Done",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aXEavxGGnMhYorAR",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webexapis.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "roomId",
+              "value": "={{ $('Get card contents').item.json.roomId }}"
+            },
+            {
+              "name": "markdown",
+              "value": "=🛠️ *Perfect!* Please standby while I apply these configs to device(s) `{{ JSON.stringify($('Get card contents').item.json.inputs.device) }}` ... ⏳"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -48,
+        832
+      ],
+      "id": "cd82df96-ac7e-4b91-ab6f-b468e33a52b3",
+      "name": "Webex Please Standby",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aXEavxGGnMhYorAR",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        1040
+      ],
+      "id": "ec6e3570-1066-4f1c-a73b-d308c868e3fb",
+      "name": "Anthropic Chat Model5",
+      "credentials": {
+        "anthropicApi": {
+          "id": "2YEW9IoYdVVUi9mK",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://pyats-mcp:8000/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        1040
+      ],
+      "id": "a2b1368d-71e7-4d86-856b-6270cebf39d5",
+      "name": "pyATS MCP3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<SYSTEM>\nYou are a Network Commit Agent.\n\nRole  \nApply ONLY the provided configuration to the specified device using MCP tools.\n\nInput  \n- action\n- device  \n- cli  \n\nRules (STRICT)  \n- Use ONLY provided input  \n- Do NOT modify, add, infer, or optimize anything  \n- Do NOT change device  \n- Execute CLI exactly as given (order matters)  \n- Use MCP tools ONLY (no simulation)  \n\nFlow  \n1. Validate  \n   - If device or cli missing → return error  \n\n2. Apply  \n   - Send CLI to device via MCP   \n\nOutput (JSON ONLY)\n\nOn Success:\n{\n  \"status\": \"success\",\n  \"device\": \"<device>\",\n  \"applied_config\": \"<cli>\"\n}\n\nOn Error:\n{\n  \"status\": \"error\",\n  \"device\": \"<device>\",\n  \"error_message\": \"<exact error>\"\n}\n\nSafety  \n- Empty/malformed CLI → error  \n- Device unreachable → error  \n- MCP failure → error  \n- No retries  \n\nPrinciple  \nDeterministic execution only. No deviation.\n</SYSTEM>\n\n<USER>\n{\n  \"action\": \"{{ $('Get card contents').item.json.inputs.action }}\",\n  \"device\": \"{{ $('Get card contents').item.json.inputs.device }}\",\n  \"cli\": \"{{ $('Get card contents').item.json.inputs.cli }}\"\n}\n</USER>",
+        "options": {
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        160,
+        832
+      ],
+      "id": "fdad9b41-00d0-4709-a7fa-67e45b857208",
+      "name": "Commit Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  let outputText = item.json.output;\n  \n  // Remove markdown code block markers (```json and ```)\n  outputText = outputText.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\n  \n  // Parse the JSON string into an object\n  const parsedJson = JSON.parse(outputText);\n  \n  return { json: parsedJson };\n});\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        832
+      ],
+      "id": "abcf41e3-6960-4eb1-8d01-97bd7040d309",
+      "name": "Convert to JSON3"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cdd97172-7687-48db-ad24-62f8bc4ff4a2"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1fd119cf-e7ac-4100-90a2-cec2866e443f",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "error",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Failure"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        832
+      ],
+      "id": "82d54ad3-961f-478a-976a-16f5ee0db416",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webexapis.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "roomId",
+              "value": "={{ $('Webex Please Standby').item.json.roomId }}"
+            },
+            {
+              "name": "markdown",
+              "value": "=✅ The configurations were successfully applied to device(s) `{{ $json.device }}`. Is there anything else I can help you with?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        960,
+        704
+      ],
+      "id": "6ea4dad3-1819-4927-888d-e431e78e572b",
+      "name": "Webex Reply Configs Applied",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aXEavxGGnMhYorAR",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webexapis.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "roomId",
+              "value": "={{ $('Webex Please Standby').item.json.roomId }}"
+            },
+            {
+              "name": "markdown",
+              "value": "=❌ The configurations were not applied to device(s) `{{ $json.device }}`. Error: `{{ $json.error_message }}`"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        960,
+        944
+      ],
+      "id": "9a4e8d2b-3634-4267-95b4-4c67df14e147",
+      "name": "Webex Reply Something Went Wrong",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aXEavxGGnMhYorAR",
+          "name": "Header Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Intent Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to JSON": {
+      "main": [
+        [
+          {
+            "node": "Is R/W or other?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get message content": {
+      "main": [
+        [
+          {
+            "node": "Intent Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intent Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Intent Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "General Chat Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "General Chat Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "General Chat Agent": {
+      "main": [
+        [
+          {
+            "node": "Webex Reply to Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Validator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Validator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validator Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to JSON1": {
+      "main": [
+        [
+          {
+            "node": "Is Valid or Not Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webex Bot Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get message content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is R/W or other?": {
+      "main": [
+        [
+          {
+            "node": "General Chat Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid or Not Valid?": {
+      "main": [
+        [
+          {
+            "node": "Is Read or Write",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Webex Reply Something Wrong with the Device",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Read or Write": {
+      "main": [
+        [
+          {
+            "node": "Reading Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Planning Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Reading Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Reading Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reading Agent": {
+      "main": [
+        [
+          {
+            "node": "Webex Reply to Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planning Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planning Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to JSON2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to JSON2": {
+      "main": [
+        [
+          {
+            "node": "Store plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store plan": {
+      "main": [
+        [
+          {
+            "node": "Webex Reply with Config Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webex Card Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get card contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get card contents": {
+      "main": [
+        [
+          {
+            "node": "Dismiss card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yay or Nay": {
+      "main": [
+        [
+          {
+            "node": "Webex Reply Nothing To Be Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Webex Please Standby",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dismiss card": {
+      "main": [
+        [
+          {
+            "node": "Yay or Nay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webex Please Standby": {
+      "main": [
+        [
+          {
+            "node": "Commit Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Commit Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Commit Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to JSON3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to JSON3": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Webex Reply Configs Applied",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Webex Reply Something Went Wrong",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6fd757b7-2321-47b4-a798-dda80f042a0e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6c6782a8991552b2596e234b16c212cb221496b90c83d7b5aa043c96cb370b73"
+  },
+  "id": "h2n70cHd8rJquzcR",
+  "tags": [
+    {
+      "updatedAt": "2026-01-13T17:46:25.171Z",
+      "createdAt": "2026-01-13T17:46:25.171Z",
+      "id": "0xEVorz40AcWYNDC",
+      "name": "netops"
+    },
+    {
+      "updatedAt": "2026-01-14T17:36:13.000Z",
+      "createdAt": "2026-01-14T17:36:13.000Z",
+      "id": "BfSv3PU90tTZAAoe",
+      "name": "chatops"
+    }
+  ]
+}
