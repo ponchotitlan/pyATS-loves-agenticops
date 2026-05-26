@@ -6,18 +6,54 @@
 # If you wish to provide your own devices, please follow the structure below and adjust the parameters accordingly
 ---
 devices:
-  xrd-1:
-    os: iosxr
+  R1:
+    os: iosxe
     type: router
-    platform: xrd
+    platform: iol
     credentials:
       default:
-        username: your_given_username
-        password: your_given_password
+        username: cisco
+        password: cisco
     connections:
       cli:
-        protocol: ssh
-        ip: sandbox-iosxr-1.cisco.com
-        timeout: 120
-        arguments:
-          ssh_options: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+        protocol: telnet
+        ip: 10.10.20.171
+
+  R2:
+    os: iosxe
+    type: router
+    platform: iol
+    credentials:
+      default:
+        username: cisco
+        password: cisco
+    connections:
+      cli:
+        protocol: telnet
+        ip: 10.10.20.172
+
+  SW1:
+    os: iosxe
+    type: switch
+    platform: iol
+    credentials:
+      default:
+        username: cisco
+        password: cisco
+    connections:
+      cli:
+        protocol: telnet
+        ip: 10.10.20.173
+
+  SW2:
+    os: iosxe
+    type: switch
+    platform: iol
+    credentials:
+      default:
+        username: cisco
+        password: cisco
+    connections:
+      cli:
+        protocol: telnet
+        ip: 10.10.20.174

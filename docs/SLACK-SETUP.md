@@ -1,6 +1,6 @@
 # ⚙️ Slack setup for n8n workflows
 
-This document describes how to setup your Slack system for interacting with the [ChatOps Agentic Network Automation Workflow](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/chatops_workflow.md) in this repository.</br>
+This document describes how to setup your Slack system for interacting with the Multi-Channel ChatOps n8n workflow in this repository.</br>
 **Buckle up!**
 
 1. Create a Workspace in your Slack. In this case, we will use ```My Network Ops✨```
@@ -11,7 +11,7 @@ This document describes how to setup your Slack system for interacting with the 
 </div>
 </br>
 
-2. Create Slack App at `api.slack.com/apps` in the Workspace aforementioned. Our app will be called ```Packetl```
+2. Create Slack App at `api.slack.com/apps` in the Workspace aforementioned. Our app will be called ```RADKiteer```
 
 </br>
 <div align="center">
@@ -85,20 +85,18 @@ This document describes how to setup your Slack system for interacting with the 
 </div>
 </br>
 
-10. Finally, navigate to `Interactivity and Shorcuts`, and in the `Interactivity > Request URL` section, provide the URL of your webhooks. This will enable your app to interact via Cards and buttons with the workflow.
+10. Navigate to `Settings` > `Install App` and click again `Reinstall to My Network Ops✨`
 
 </br>
 <div align="center">
-<img src="../images/slack_interactivity.png"/>
+<img src="../images/slack_reinstall_app.png"/>
 </div>
 </br>
 
-11. Navigate to `Settings` > `Install App` and click again `Reinstall to My Network Ops✨`
-
-**Ready to test!** Create a new channel in your workspace, add the `Packetl` app and tag it to ask any question about your network:
+**Ready to test!** Create a new channel in your workspace, add the `RADKiteer` app and tag it to ask any question about your Cisco RADKit network:
 
 </br>
 <div align="center">
-<img src="../images/slack_read.png"/>
+<img src="../images/slack_chat_example.png"/>
 </div>
 </br>

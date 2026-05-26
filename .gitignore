@@ -1,2 +1,3 @@
-docker-compose-example.yml
+docker-compose-override.yml
 *.pem
+.env
