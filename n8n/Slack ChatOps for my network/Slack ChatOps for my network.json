@@ -1,0 +1,825 @@
+{
+  "name": "Slack ChatOps for my network",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d465ca43-e71d-49f2-9e76-73a009f7e3f8",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "commit",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -6496,
+        672
+      ],
+      "id": "d2ba179c-872e-439b-9715-bb525d4b5936",
+      "name": "Is Commit?"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "cards",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3.1,
+      "position": [
+        -6256,
+        576
+      ],
+      "id": "bb8eb398-f850-4533-952e-34d7d1c28553",
+      "name": "Explode Commit Cards"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -6016,
+        576
+      ],
+      "id": "5e95165e-bfd7-4ae7-b9b6-348a62a8333b",
+      "name": "One Device At A Time"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e032f617-c653-42fe-9173-f0f8c1266ec1",
+              "leftValue": "={{ $json.action_id }}",
+              "rightValue": "commit_approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -7632,
+        1200
+      ],
+      "id": "14a762a7-dc39-4817-9b7e-a1aff61b4c84",
+      "name": "Decision Is OK?"
+    },
+    {
+      "parameters": {
+        "channel": "={{ $('Decision Is OK?').item.json.channel }}",
+        "text": "={{ $json.verification_markdown }}",
+        "otherOptions": {},
+        "attachments": []
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        -6416,
+        1120
+      ],
+      "id": "175598dc-bca3-4f55-b51e-500c535b5ecc",
+      "name": "Send Commit Verification",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Get Slack Message from Bot Mention').item.json.channel }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -6928,
+        912
+      ],
+      "id": "fd21c67e-fca0-4091-8dab-34f1bcc5df69",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "channel": "={{ $('When the Packetl bot is mentioned').item.json.channel }}",
+        "text": "={{ $json.reply_markdown }}",
+        "otherOptions": {},
+        "attachments": []
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        -6256,
+        784
+      ],
+      "id": "f55be5dd-cf4d-4a90-85c3-98cf34fb66a6",
+      "name": "Reply to message in thread",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pool of generic, slightly cheerful, technical standby phrases\nconst phrases = [\n  \"🔄 Processing request… please wait.\",\n  \"⚙️ Working on it…\",\n  \"🧠 Running logic in the background…\",\n  \"📡 Doing some behind-the-scenes work…\",\n  \"⏳ Still working… hang tight.\",\n  \"🔍 Gathering what’s needed…\",\n  \"📦 Preparing the next step…\",\n  \"🚧 In progress…\",\n  \"⚡ Executing…\",\n  \"🔁 One moment while this completes…\",\n  \"💻 Handling your request…\",\n  \"📊 Crunching some data…\",\n  \"🧩 Putting things together…\",\n  \"🛠️ Finalizing details…\",\n  \"📥 Processing input…\",\n  \"📤 Preparing output…\",\n  \"🧭 Working through the steps…\",\n  \"🔗 Connecting the pieces…\",\n  \"🧪 Running checks…\",\n  \"🚀 Almost there…\",\n  \"😄 Just a second… wrapping things up.\",\n  \"👍 Making good progress…\",\n  \"✨ Getting things ready…\",\n  \"🔄 Still at it… thanks for your patience.\",\n  \"⚙️ Nearly done…\"\n];\n\n// Pick a random phrase\nconst randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];\n\n// Return it as output\nreturn [\n  {\n    json: {\n      standby_message: randomPhrase\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7616,
+        672
+      ],
+      "id": "ca64c66c-eba5-4c2d-9d7f-c0424be5d182",
+      "name": "Please Standby Random Phrase"
+    },
+    {
+      "parameters": {
+        "jsCode": "const phrases = [\n  \"🔄 Processing request… please wait.\",\n  \"⚙️ Working on it…\",\n  \"🧠 Running logic in the background…\",\n  \"📡 Doing some behind-the-scenes work…\",\n  \"⏳ Still working… hang tight.\",\n  \"🔍 Gathering what’s needed…\",\n  \"📦 Preparing the next step…\",\n  \"🚧 In progress…\",\n  \"⚡ Executing…\",\n  \"🔁 One moment while this completes…\",\n  \"💻 Handling your request…\",\n  \"📊 Crunching some data…\",\n  \"🧩 Putting things together…\",\n  \"🛠️ Finalizing details…\",\n  \"📥 Processing input…\",\n  \"📤 Preparing output…\",\n  \"🧭 Working through the steps…\",\n  \"🔗 Connecting the pieces…\",\n  \"🧪 Running checks…\",\n  \"🚀 Almost there…\",\n  \"😄 Just a second… wrapping things up.\",\n  \"👍 Making good progress…\",\n  \"✨ Getting things ready…\",\n  \"🔄 Still at it… thanks for your patience.\",\n  \"⚙️ Nearly done…\"\n];\n\n// Pick a random phrase\nconst randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];\n\n// Return it as output\nreturn [\n  {\n    json: {\n      standby_message: randomPhrase\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7392,
+        1120
+      ],
+      "id": "deb45a2f-141c-4797-9e9b-ed55d41b2914",
+      "name": "Please Standby Random Phrase1"
+    },
+    {
+      "parameters": {
+        "channel": "={{ $('When the Packetl bot is mentioned').item.json.channel }}",
+        "text": "={{ $json.standby_message }}",
+        "otherOptions": {},
+        "attachments": []
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        -7408,
+        672
+      ],
+      "id": "4f7e6ceb-8f32-4a04-95d0-422ee77bf8ed",
+      "name": "Send Please Standby Message",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = $('When the Packetl bot is mentioned').first().json;\nconst raw = incoming.text || '';\nconst cleaned = raw.replace(/<@[^>]+>/g, '').trim();\n\nreturn [{\n  json: {\n    text: cleaned,\n    channel: incoming.channel,\n    thread_ts: incoming.ts || incoming.event_ts\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7200,
+        672
+      ],
+      "id": "64aea238-9498-4831-82b2-637a62965ec7",
+      "name": "Get Slack Message from Bot Mention"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Parse Slack Card Action').item.json.response_url }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -6896,
+        1344
+      ],
+      "id": "a1df1fc8-a618-4061-9b68-78963565fb84",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are RADKiteer, a network operations AI assistant with MCP access to our network device inventory.\n\nUser raw text:\n{{ $json.text }}\n\n---\n\n## Core Behavior\n\nYou MUST always return a valid JSON response. No exceptions.\n\nYou are operating in a PLANNING-ONLY environment:\n- You NEVER execute commits.\n- \"commit\" mode = generate a proposed change plan only.\n- DO NOT mention execution limitations or read-only mode.\n\n---\n\n## DECISION PRIORITY (HIGHEST → LOWEST)\n\n1. SAFETY (absolute override)\n2. DATA VALIDITY (fresh state required)\n3. USER INTENT\n\nIf there is ANY safety risk or uncertainty:\n→ mode MUST be \"read\"\n→ This rule OVERRIDES user intent with NO exceptions\n\n---\n\n## Intent Handling\n\n1. Classify intent:\n   - \"read\" → show/inspect/verify\n   - \"commit\" → create/modify/delete/configure\n\n2. Identify target device(s)\n\n3. ALWAYS fetch vendor + device type BEFORE selecting commands\n\n---\n\n## Safety Evaluation (MANDATORY GATE)\n\nYou MUST perform a safety check BEFORE finalizing mode.\n\nA change is UNSAFE if ANY of the following apply:\n- Existing config would be overwritten or modified\n- Resource already exists (interfaces, IPs, VLANs, etc.)\n- Impact is unknown (no full dependency visibility)\n- Live traffic, routing, or management could be affected\n- Required validation data is missing\n- Instructions are ambiguous\n\n---\n\n## HARD SAFETY ENFORCEMENT\n\nIf UNSAFE:\n- mode MUST be \"read\"\n- cards MUST be []\n- You MUST explain the risk clearly in reply_markdown\n- You MUST NOT generate commit_payload\n- You MUST NOT simulate commit steps\n\nIf SAFE:\n- mode = \"commit\"\n- Generate full proposal\n\n---\n\n## Read Mode\n\nIf mode = read:\n- Execute read operations\n- Provide findings + risk explanation\n- Suggest what to verify before a safe commit\n\n---\n\n## Commit Mode (Simulation Only)\n\nIf mode = commit:\n- Fetch fresh config/state\n- Validate no conflicts\n- Generate:\n  - Proposed changes\n  - Explicit \"SAFE TO APPLY\" justification\n\n---\n\n## Output Formatting Rules (Slack mrkdwn)\n\n- MUST be Slack-compatible mrkdwn\n- Keep formatting clean and readable in Slack\n\nYou MAY use:\n- Bullet lists (- or •)\n- Numbered lists\n- *bold* and _italic_\n- Inline code: `code`\n- Code blocks for configs and tables (```)\n\n---\n\n## TABLE FORMATTING (STRICT)\n\nSlack does NOT support markdown tables.\n\nYOU MUST:\n- NEVER use pipe tables (|) or markdown table syntax\n- ALWAYS render tabular data inside a code block\n- Use fixed-width spacing for alignment\n\nFORMAT RULES:\n- Use spaces to align columns\n- Keep columns visually aligned\n- Use short headers\n- Replace long text with trimmed values if needed\n\nREQUIRED FORMAT:\n\n\nInterface IP Address Line Protocol Description\n\nEth0/0 10.10.10.100/24 up up —\nEth0/1 1.1.1.1/24 up up —\nEth0/2 10.10.20.171/24 up up to port1.sandbox-backend\nEth0/3 — down down —\n\n\nSTATUS NORMALIZATION:\n- up → \"up\"\n- down → \"down\"\n- admin down → \"admin-down\"\n- DO NOT use emojis inside tables\n\n---\n\n## STRICT OUTPUT FORMAT\n\nReturn ONLY valid JSON:\n\n{\n  \"mode\": \"read\" | \"commit\",\n  \"reply_markdown\": \"...\",\n  \"cards\": [\n    {\n      \"channel\": \"{{ $json.channel }}\",\n      \"thread_ts\": \"{{ $json.thread_ts }}\",\n      \"device\": \"...\",\n      \"vendor\": \"...\",\n      \"safety_reason\": \"...\",\n      \"precheck_evidence\": \"...\",\n      \"commit_payload\": \"exact payload to commit\"\n    }\n  ]\n}\n\n---\n\n## HARD CONSTRAINTS (CRITICAL)\n\n- DO NOT output anything outside JSON\n- DO NOT include warnings, banners, or meta text\n- DO NOT mention:\n  - read-only mode\n  - execution limitations\n\n- mode = \"read\":\n  - cards MUST be []\n  - commit_payload MUST NOT exist anywhere\n\n- mode = \"commit\":\n  - MUST include cards\n  - MUST include commit_payload\n  - MUST explicitly justify safety\n\n---\n\n## FAILURE PREVENTION RULE (VERY IMPORTANT)\n\nIf there is a conflict like:\n- \"already exists\"\n- \"will overwrite\"\n- \"may impact existing service\"\n\n→ This is AUTOMATICALLY UNSAFE  \n→ mode MUST be \"read\" (NO exceptions)\n\n---\n\nIf you violate JSON format, the response is invalid.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -6992,
+        672
+      ],
+      "id": "d9886f5d-000b-4265-b306-8047f0cd228d",
+      "name": "Planning AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        -7088,
+        912
+      ],
+      "id": "7e6da334-6fdc-4935-a631-8a778de44ca8",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "rfGYsOsA1LgA8sLx",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = items[0].json;\nconst obj = Array.isArray(input) ? input[0] : input;\n\nif (!obj || typeof obj.output !== 'string') {\n  throw new Error('Invalid input format');\n}\n\nconst raw = obj.output;\n\n// Extract JSON block\nconst first = raw.indexOf('{');\nconst last = raw.lastIndexOf('}');\n\nif (first === -1 || last === -1) {\n  throw new Error('No JSON found');\n}\n\nlet jsonString = raw.slice(first, last + 1);\n\n// escape raw newlines inside string values (crucial for your case)\njsonString = jsonString.replace(\n  /\"reply_markdown\"\\s*:\\s*\"([\\s\\S]*?)\"/,\n  (match, p1) => {\n    const fixed = p1\n      .replace(/\\n/g, '\\\\n')\n      .replace(/\\r/g, '\\\\r')\n      .replace(/\"/g, '\\\\\"');\n\n    return `\"reply_markdown\":\"${fixed}\"`;\n  }\n);\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(jsonString);\n} catch (e) {\n  throw new Error(\n    'JSON parse failed AFTER repair: ' + e.message + '\\n--- RAW ---\\n' + jsonString\n  );\n}\n\nreturn [{ json: parsed }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6672,
+        672
+      ],
+      "id": "88094070-eac4-448e-b438-9a8c97dec07b",
+      "name": "Transform result into JSON"
+    },
+    {
+      "parameters": {
+        "channel": "={{ $json.channel }}",
+        "text": "=Commit approval required for {{ $json.device || 'unknown' }}",
+        "jsonParameters": true,
+        "otherOptions": {},
+        "attachments": [],
+        "attachmentsJson": "[]",
+        "blocksJson": "={{ JSON.stringify(\n[\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"🧰 Commit Approval Required\",\n      \"emoji\": true\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🤖 Device:*\\n\" + ($json.device || \"unknown\")\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🏷️ Vendor:*\\n\" + ($json.vendor || \"unknown\")\n      }\n    ]\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*📋 Safety Comments*\\n\" + ($json.safety_reason || \"No safety reason provided.\")\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*✏️ Pre-check Evidence*\\n\" + ($json.precheck_evidence || \"No pre-check evidence provided.\")\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*⚙️ Commit Payload*\\n```\\n\" + ($json.commit_payload || \"No commit payload provided.\") + \"\\n```\"\n    }\n  },\n  {\n    \"type\": \"actions\",\n    \"elements\": [\n      {\n        \"type\": \"button\",\n        \"text\": {\n          \"type\": \"plain_text\",\n          \"text\": \"✅ Please commit\",\n          \"emoji\": false\n        },\n        \"action_id\": \"commit_approve\",\n        \"value\": JSON.stringify({\n          \"channel\": $json.channel,\n          \"thread_ts\": $json.thread_ts,\n          \"device\": $json.device || \"unknown\",\n          \"vendor\": $json.vendor || \"unknown\",\n          \"commit_payload\": $json.commit_payload || \"\"\n        }),\n        \"style\": \"primary\"\n      },\n      {\n        \"type\": \"button\",\n        \"text\": {\n          \"type\": \"plain_text\",\n          \"text\": \"❌ Cancel\",\n          \"emoji\": false\n        },\n        \"action_id\": \"commit_cancel\",\n        \"value\": JSON.stringify({\n          \"channel\": $json.channel,\n          \"thread_ts\": $json.thread_ts,\n          \"device\": $json.device || \"unknown\",\n          \"vendor\": $json.vendor || \"unknown\",\n          \"commit_payload\": $json.commit_payload || \"\"\n        }),\n        \"style\": \"danger\"\n      }\n    ]\n  }\n]) }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        -5776,
+        592
+      ],
+      "id": "87f92111-f3b1-4232-b752-7c59d174c5e3",
+      "name": "Send Commit Card",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ccb38736-1a6a-4f95-a198-4dd1d932f9db",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -8240,
+        1200
+      ],
+      "id": "b5a56f83-3f27-4009-988d-04da1bf1c79f",
+      "name": "When a Card is Clicked",
+      "webhookId": "ccb38736-1a6a-4f95-a198-4dd1d932f9db"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\n\nif (!body || !body.payload) {\n  throw new Error('Missing Slack payload');\n}\n\nlet payload;\ntry {\n  payload = typeof body.payload === 'string' ? JSON.parse(body.payload) : body.payload;\n} catch (e) {\n  throw new Error('Failed to parse Slack payload: ' + e.message);\n}\n\nconst action = payload.actions?.[0];\nif (!action) {\n  throw new Error('Missing Slack action');\n}\n\nconst actionValue = action.value || '{}';\nlet parsedValue = {};\n\nif (typeof actionValue === 'string' && actionValue.startsWith('{')) {\n  try {\n    parsedValue = JSON.parse(actionValue);\n  } catch (e) {\n    console.warn('Could not parse action value as JSON:', actionValue);\n  }\n}\n\nreturn [{\n  json: {\n    action_id: action.action_id,\n    decision: action.action_id === 'commit_approve' ? 'ok' : 'cancel',\n    response_url: payload.response_url || '',\n    channel: parsedValue.channel || payload.channel?.id || payload.container?.channel_id || '',\n    thread_ts: parsedValue.thread_ts || payload.container?.thread_ts || payload.container?.message_ts || '',\n    device: parsedValue.device || 'unknown',\n    vendor: parsedValue.vendor || 'unknown',\n    commit_payload: parsedValue.commit_payload || ''\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7824,
+        1200
+      ],
+      "id": "43b0de66-9095-4f43-94df-f7439c654ade",
+      "name": "Parse Slack Card Action"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Decision Is OK?').item.json.response_url }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "replace_original",
+              "value": "true"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.standby_message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -7200,
+        1312
+      ],
+      "id": "b403fe98-fe6d-40e7-93db-d21b08c34e0f",
+      "name": "Delete the Card"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Decision Is OK?').item.json.response_url }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "replace_original",
+              "value": "true"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.standby_message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -7200,
+        1120
+      ],
+      "id": "2d9f32f9-f3de-435a-8429-d2a8882dc0bb",
+      "name": "Delete the Card1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are RADKiteer with MCP access to Cisco RADKit.\n\nExecute the approved commit and verify it.\n\nInputs:\n- Device: {{ $('Decision Is OK?').item.json.device }}\n- Vendor: {{ $('Decision Is OK?').item.json.vendor }}\n- Commit payload: {{ $('Decision Is OK?').item.json.commit_payload }}\n\nInstructions:\n- Apply write operation to the specified device using vendor-appropriate method.\n- Re-fetch post-commit state and verify intended result.\n- Return ONLY strict JSON:\n{\n  \"device\": \"...\",\n  \"vendor\": \"...\",\n  \"verification_markdown\": \"human-readable verification summary\"\n}\n\n- DON'T add any comments or else before or after the JSON.\n- Markdown must be compatible with Slack mrkdwn.\n- Do not use markdown tables.\n- If data is tabular, reformat it as bullet list, or section per item with Field: Value lines, or fenced code block for dense matrix data. Keep all original data, only change layout.\n- For diffs, use: Field: before -> after.\n- Keep lines short and readable.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -6992,
+        1120
+      ],
+      "id": "e1f26093-6329-4a82-9f99-77ba7d85d959",
+      "name": "Commit And Verify AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get input safely\nconst input = items[0].json;\n\n// If input itself is a string, parse it\nconst parsed = typeof input === 'string' ? JSON.parse(input) : input;\n\n// Normalize structure (array vs object)\nconst obj = Array.isArray(parsed) ? parsed[0] : parsed;\n\n// Validate existence\nif (!obj || !obj.output) {\n  throw new Error('Invalid input format: \"output\" field not found');\n}\n\n// Extract raw string\nconst rawOutput = obj.output;\n\n// Remove markdown fences\nconst cleaned = rawOutput\n  .replace(/^```json\\s*/, '')\n  .replace(/```$/, '')\n  .trim();\n\n// Parse inner JSON\nconst finalJson = JSON.parse(cleaned);\n\n// Return\nreturn [\n  {\n    json: finalJson\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6608,
+        1120
+      ],
+      "id": "8418e6c5-38d6-4056-b875-660a7cf3eda6",
+      "name": "Transform Result into JSON1"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "pyats_list_devices",
+          "pyats_run_show_command",
+          "pyats_show_running_config",
+          "pyats_show_logging",
+          "pyats_ping_from_network_device",
+          "pyats_run_linux_command",
+          "pyats_run_dynamic_test"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -6752,
+        896
+      ],
+      "id": "cf9134da-9818-4f3d-a678-6846d6fbc1cd",
+      "name": "pyATS MCP - Read-only Mode"
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "app_mention"
+        ],
+        "watchWorkspace": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -7824,
+        672
+      ],
+      "id": "672c3482-adef-4108-82d8-ad3372a077dd",
+      "name": "When the Packetl bot is mentioned",
+      "webhookId": "06014309-4002-4b32-87eb-416047d2b7f6",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8000/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -6720,
+        1328
+      ],
+      "id": "83f06af9-98ff-46e5-8f2a-c8683f718e09",
+      "name": "pyATS MCP - Full Mode"
+    },
+    {
+      "parameters": {
+        "jsCode": "const phrases = [\n  \"🛑 Commit request cancelled.\",\n  \"⚙️ Commit operation stopped.\",\n  \"🧠 Commit aborted.\",\n  \"📡 Commit cancel signal executed.\",\n  \"🔍 Commit halted.\",\n  \"🚧 Commit cancelled.\",\n  \"⚡ Commit execution stopped.\",\n  \"💻 Commit request terminated.\",\n  \"📊 Commit processing stopped.\",\n  \"🧩 Pending commit discarded.\",\n  \"🛠️ Commit cancellation finalized.\",\n  \"📥 Commit input handling stopped.\",\n  \"📤 Commit output cancelled.\",\n  \"🧭 Commit process exited.\",\n  \"🔗 Commit sequence disconnected.\",\n  \"🧪 Commit validation stopped.\",\n  \"🚀 Commit aborted successfully.\",\n  \"😄 Commit cancelled cleanly.\",\n  \"👍 Commit cancellation complete.\",\n  \"✨ Commit cleared.\",\n  \"🔄 Commit state reset.\",\n  \"⚙️ Commit fully stopped.\"\n];\n\n// Pick a random phrase\nconst randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];\n\n// Return it as output\nreturn [\n  {\n    json: {\n      standby_message: randomPhrase\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7392,
+        1312
+      ],
+      "id": "fe1ccfd6-e046-46a4-8f72-ebabad5c9042",
+      "name": "Cancel Random Phrase"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -8032,
+        1200
+      ],
+      "id": "bd89c406-644d-4c19-b2c6-f36b3a79be63",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Is Commit?": {
+      "main": [
+        [
+          {
+            "node": "Explode Commit Cards",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply to message in thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explode Commit Cards": {
+      "main": [
+        [
+          {
+            "node": "One Device At A Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One Device At A Time": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send Commit Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Is OK?": {
+      "main": [
+        [
+          {
+            "node": "Please Standby Random Phrase1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cancel Random Phrase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Planning AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Please Standby Random Phrase": {
+      "main": [
+        [
+          {
+            "node": "Send Please Standby Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Please Standby Random Phrase1": {
+      "main": [
+        [
+          {
+            "node": "Delete the Card1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Please Standby Message": {
+      "main": [
+        [
+          {
+            "node": "Get Slack Message from Bot Mention",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Slack Message from Bot Mention": {
+      "main": [
+        [
+          {
+            "node": "Planning AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Commit And Verify AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planning AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Transform result into JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planning AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Commit And Verify AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform result into JSON": {
+      "main": [
+        [
+          {
+            "node": "Is Commit?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Commit Card": {
+      "main": [
+        [
+          {
+            "node": "One Device At A Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When a Card is Clicked": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Slack Card Action": {
+      "main": [
+        [
+          {
+            "node": "Decision Is OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete the Card1": {
+      "main": [
+        [
+          {
+            "node": "Commit And Verify AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit And Verify AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Transform Result into JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Result into JSON1": {
+      "main": [
+        [
+          {
+            "node": "Send Commit Verification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP - Read-only Mode": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planning AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When the Packetl bot is mentioned": {
+      "main": [
+        [
+          {
+            "node": "Please Standby Random Phrase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pyATS MCP - Full Mode": {
+      "ai_tool": [
+        [
+          {
+            "node": "Commit And Verify AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Random Phrase": {
+      "main": [
+        [
+          {
+            "node": "Delete the Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Slack Card Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b53c7dae-eec4-4639-ae5d-77d9251506ec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "50fb4d2f3360a0e82364e133321a88b55bc7b875b40069cddb631dad426c79a6"
+  },
+  "id": "W0kFZ9Ksp1dFLfoT",
+  "tags": [
+    {
+      "name": "chatops",
+      "id": "GKwuy5bZ3mUz87X7",
+      "updatedAt": "2026-05-25T15:48:31.571Z",
+      "createdAt": "2026-05-25T15:48:31.571Z"
+    },
+    {
+      "name": "netops",
+      "id": "RI2oyLHd5oNJTXhq",
+      "updatedAt": "2026-05-25T15:48:31.564Z",
+      "createdAt": "2026-05-25T15:48:31.564Z"
+    }
+  ]
+}

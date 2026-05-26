@@ -1,6 +1,6 @@
 <h1 align="center">pyATS 🫰 AgenticOps<br /><br />
 <div align="center">
-<img src="images/pyATS_logoAsset.png"/>
+<img src="images/pyATS-repo-logo.png"/>
 </div>
 
 <div align="center">
@@ -9,180 +9,43 @@
 <img src="https://img.shields.io/badge/MCP-Protocol-000000?style=flat-square&logo=anthropic&logoColor=white" alt="MCP">
 <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python">
 <img src="https://img.shields.io/badge/Docker-Required-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
-<a href="https://deepwiki.com/ponchotitlan/pyATS-loves-agenticops"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
 </div>
 </h1>
 
 <div align="center">
-A collection of <strong>low-code</strong>, AgenticOps workflows based on <strong>n8n, MCP and Cisco pyATS</strong> for network automation experiments across ChatOps and reporting use cases 🧪
+A collection of <strong>low-code</strong>, AgenticOps workflows based on <strong>n8n, MCP and Cisco pyATS</strong> for network automation experiments across AI use cases 🧪
 <br /><br />
 </div>
 
 ---
 
-## 📦 Included projects
+## ✅ Prerequisites
 
-### ⚙️ 1. ChatOps Agentic Network Automation
-Operate your network directly from Slack or Webex Teams using a multi-agent architecture.
+Before diving in, make sure you have these essentials ready:
 
-**Highlights**
-- 💬 Slack and Webex Teams ChatOps interfaces  
-- 🧠 Multiple specialized agents (intent, planning, read, commit, formatting)  
-- 🛡️ Guardrails with human approval before writes  
-- 🔌 Real execution via **pyATS MCP**  
-- 🔁 Rollback-aware configuration workflows  
-
-**Use cases**
-- Safe interactive automation  
-- Change workflows with approval  
-- Secure self-hosted NetOps bots  
-
-
-📁 More information:  
-[Agentic ChatOps for network automation using n8n + Slack + pyATS MCP](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/chatops_slack_workflow.md)  
-[Agentic ChatOps for network automation using n8n + Webex Teams + pyATS MCP](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/chatops_wxt_workflow.md)
+- 🐳 **Docker**: For containerized workflow execution
+- 🐍 **Python 3.10+**: Required for MCP server operations
 
 ---
 
-### 📊 2. Agentic Reporting & Automated Ticketing
-An autonomous pipeline for **continuous network reporting and GitHub-native remediation tracking**.
+## 🚦 Getting Started
 
-**Highlights**
-- 📅 Scheduled or manual execution  
-- 🤖 Reporting agent investigates network using **pyATS MCP**  
-- 📄 Generates professional Markdown reports  
-- 📁 Commits reports to GitHub  
-- 🎫 Ticketing agent detects risks and auto-creates GitHub Issues  
-- 🔗 Tight traceability between evidence and action  
+1. **Clone this repository** to your local machine
+2. **Navigate to the `n8n` directory**
+3. **Explore the workflow folders**: Each folder contains:
+   - 📄 A `.json` workflow file ready to import into n8n
+   - 📚 Dedicated documentation in `.md` files explaining setup and usage
 
-**Use cases**
-- Continuous posture reporting  
-- Compliance evidence  
-- Risk-driven backlog generation  
-- GitOps-style operational governance  
-
-📁 More information:  
-[Agentic reporting + GitHub issue automation using n8n + pyATS MCP](https://github.com/ponchotitlan/pyATS-loves-agenticops/blob/main/docs/reporting_ticketing_workflow.md)
+Each workflow is self-contained with its own configuration and detailed instructions. Simply pick the one that fits your use case and follow along! 🎓
 
 ---
 
-## ⚙️ General setup
+## 📦 Available Workflows
 
-Clone this repository:
-
-```
-git clone https://github.com/ponchotitlan/pyATS-loves-agenticops
-```
-
-Then choose one of the included Docker Compose examples and copy it to `docker-compose.yml`:
-
-```
-cp docker-compose-example-cloudflare.yml docker-compose.yml
-```
-
-or:
-
-```
-cp docker-compose-example-ngrok.yml docker-compose.yml
-```
-
-### Cloudflare Docker Compose setup
-
-Use `docker-compose-example-cloudflare.yml` when you want n8n exposed through a Cloudflare Tunnel.
-
-- Replace `YOUR_DOMAIN` in these n8n settings with your public hostname, for example `n8n.example.com`:
-  - `WEBHOOK_URL=https://YOUR_DOMAIN`
-  - `N8N_HOST=YOUR_DOMAIN`
-  - `N8N_EDITOR_BASE_URL=https://YOUR_DOMAIN`
-- Replace `YOUR_TUNNEL_TOKEN` with the token from the Cloudflare Zero Trust dashboard
-
-### ngrok Docker Compose setup
-
-Use `docker-compose-example-ngrok.yml` when you want to expose n8n through ngrok.
-
-- Reserve a static ngrok domain in your ngrok dashboard
-- Replace `YOUR-STATIC-DOMAIN` in these settings with that domain:
-  - `WEBHOOK_URL=https://YOUR-STATIC-DOMAIN`
-  - `N8N_HOST=YOUR-STATIC-DOMAIN`
-  - `N8N_EDITOR_BASE_URL=https://YOUR-STATIC-DOMAIN`
-  - `--domain=YOUR-STATIC-DOMAIN`
-- Replace `YOUR-TOKEN` with your ngrok authtoken
-
-### Shared pyATS MCP setup
-
-Both Docker Compose examples already contain the same `pyats-mcp` service. Verify these shared settings:
-
-- `MCP_TRANSPORT: http` keeps the MCP server in HTTP mode, which is what these workflows expect
-- `MCP_HOST: 0.0.0.0` exposes the MCP server on all container interfaces
-- `MCP_PORT: 8000` publishes the MCP API on port 8000 inside the Docker network and on the host
-- `ports: - "8000:8000"` exposes the same MCP port on the host
-- `./testbed.yaml:/app/testbed.yaml:ro` mounts your pyATS inventory file read-only into the container
-- Replace `./testbed.yaml` with your own inventory before starting the stack
-
-If you need a different MCP port, change both `MCP_PORT` and the published port mapping together so they stay consistent.
-
-After the compose file is configured, start the services:
-
-```bash
-docker compose up -d
-```
-
-This starts n8n, the selected tunnel service, and the shared `pyats-mcp` container.
-
-To stop the services:
-
-```
-docker compose down
-```
-
----
-
-## 🧠 Architectural philosophy
-
-| Principle | Meaning |
-|--------|--------|
-| 🧩 Separation of concerns | No agent has unlimited power |
-| 🔒 Guardrails by design | Writes require structure + approval |
-| 🔧 Tools over hallucinations | Real data via pyATS MCP |
-| 📁 Git as source of truth | Prompts, reports, tickets are versioned |
-| 👤 Humans stay in control | Automation proposes, humans approve |
-
-> Assume models are fallible. Design systems that remain safe anyway.
-
----
-
-## 🔌 Core execution layer: pyATS MCP
-
-Both projects rely on a shared real-world execution backend:
-
-👉 [pyATS MCP](https://github.com/ponchotitlan/pyATS_MCP)
-
-This provides:
-- Real CLI execution  
-- Real device outputs  
-- Zero fabricated telemetry  
-- Clean separation between reasoning and execution  
-
----
-
-## 🧰 Core stack
-
-- **pyATS** – network interaction engine  
-- **MCP server** – execution abstraction  
-- **n8n** – workflow orchestration  
-- **LLM agents** – reasoning layer  
-- **GitHub** – storage, audit trail, collaboration  
-- **Slack** – ChatOps interface (project 1)  
-
----
-
-## 🏗️ What this is good for
-
-- Agentic NetOps experimentation  
-- Secure automation architecture  
-- Internal platform foundations  
-- Operational AI
-- GitOps + AI convergence   
+| Workflow Name | Description |
+|---------------|-------------|
+| 🛡️ **[Slack ChatOps for my network](./n8n/Slack%20ChatOps%20for%20my%20network/)** | Enhanced ChatOps via Slack that include guardrails, human-in-the-loop for config commits, conflict detection and much more |
+| 📊 **[Reporting and Auditing for my network](./n8n/Reporting%20and%20Auditing%20for%20my%20network/)** | Automated triggering of audits based on GitHub files to create reports and issues in GitHub based on the findings |
 
 ---
 

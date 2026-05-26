@@ -1,0 +1,79 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-demo
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Lisbon
+      - GENERIC_TIMEZONE=Europe/Lisbon
+
+      - N8N_USER_MANAGEMENT_DISABLED=true
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
+
+      # n8n listens locally; public URL is set explicitly below.
+      - N8N_HOST=localhost
+      - N8N_LISTEN_ADDRESS=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=${N8N_PUBLIC_URL}
+      - N8N_EDITOR_BASE_URL=${N8N_PUBLIC_URL}
+      - N8N_PROXY_HOPS=1
+      - N8N_CORS_CREDENTIALS=true
+      - N8N_CORS_ALLOWED_ORIGINS=${N8N_PUBLIC_URL}
+
+    volumes:
+      - n8n_netauto_data:/home/node/.n8n
+
+    ports:
+      - "127.0.0.1:5678:5678"
+
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+    networks:
+      - internal
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:2026.3.0
+    container_name: cloudflare-tunnel
+    restart: unless-stopped
+    command: tunnel --protocol http2 run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      n8n:
+        condition: service_healthy
+    networks:
+      - internal
+
+  pyats-mcp:
+    build:
+      context: https://github.com/ponchotitlan/pyATS_MCP.git
+      dockerfile: Dockerfile
+    image: pyats-mcp:latest
+    container_name: pyats-mcp
+    environment:
+      - MCP_TRANSPORT=http
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+    volumes:
+      - ./testbed.yaml:/app/testbed.yaml:ro
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - internal
+
+volumes:
+  n8n_netauto_data:
+    driver: local
+
+networks:
+  internal:
+    driver: bridge
