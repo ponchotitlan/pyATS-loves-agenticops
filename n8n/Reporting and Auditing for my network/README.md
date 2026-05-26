@@ -1,7 +1,7 @@
 # 📊 Agentic Reporting & Automated Ticketing for my network Workflow
 
 <div align="center">
-<!-- <img src="../../images/reporting_arch.png"/> -->
+<img src="../../images/reporting_01_arch.png"/>
 </div>
 
 An **agentic n8n workflow** that automatically:
@@ -22,7 +22,7 @@ Designed for **continuous operational visibility** and **reporting + issue creat
 - 📄 Structured Markdown reports (committed to GitHub)  
 - 🎫 Automatic issue creation when risks/recommendations are detected  
 - 🔗 Tight traceability between reports and tickets  
-- 🧩 Fully auditable, GitOps-friendly workflow  
+- 🧩 Fully auditable, GitOps-friendly workflow
 
 ---
 
@@ -35,6 +35,16 @@ Designed for **continuous operational visibility** and **reporting + issue creat
 
 Clean separation of concerns:  
 > One agent observes. One agent escalates.
+
+---
+First agent integrations
+
+![arch01](../../images/reporting_02_arch.png)
+
+---
+Second agent integrations
+
+![arch01](../../images/reporting_03_arch.png)
 
 ---
 

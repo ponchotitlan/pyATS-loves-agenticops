@@ -1,6 +1,6 @@
 <h1 align="center">pyATS 🫰 AgenticOps<br /><br />
 <div align="center">
-<img src="images/pyATS-repo-logo.png"/>
+<img src="images/pyats-repo-logo_.png"/>
 </div>
 
 <div align="center">
