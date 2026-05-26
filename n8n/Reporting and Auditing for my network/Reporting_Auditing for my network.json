@@ -1,15 +1,15 @@
 {
-  "name": "Reporting/Auditing for my RADKit",
+  "name": "Reporting/Auditing for my network",
   "nodes": [
     {
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -2288,
-        320
+        -128,
+        256
       ],
-      "id": "5d1ab0b7-153d-46e5-ab61-3123a898f9e0",
+      "id": "6c3534c8-55f4-4c73-80cf-920875adf452",
       "name": "When clicking ‘Execute workflow’"
     },
     {
@@ -22,27 +22,27 @@
         },
         "repository": {
           "__rl": true,
-          "value": "radkit-agentic-workflows",
+          "value": "pyATS-loves-agenticops",
           "mode": "list",
-          "cachedResultName": "radkit-agentic-workflows",
-          "cachedResultUrl": "https://github.com/ponchotitlan/radkit-agentic-workflows"
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "=n8n/Reporting and Auditing for my RADKit/reports/files/{{ $('Consolidate report query').item.json.file_prefix }}_{{ $now}}.md",
+        "filePath": "=n8n/Reporting and Auditing for my network/reports/files/{{ $('Consolidate report query').item.json.file_prefix }}_{{ $now}}.md",
         "fileContent": "={{ $json.output }}",
         "commitMessage": "={{ $('Consolidate report query').item.json.file_prefix }} report gen"
       },
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        0,
-        208
+        2160,
+        144
       ],
-      "id": "a0939d2d-67b2-402e-ba4c-f9d185fc6407",
+      "id": "50d8430b-b69f-4b6b-95e0-14c94cc94506",
       "name": "Create a report file",
       "webhookId": "e166c285-6ad1-4efd-a30c-0ea0eba19ff5",
       "credentials": {
         "githubApi": {
-          "id": "PDqbRbIy6x8lk7mU",
+          "id": "kpixrBYVwR8zj5Tb",
           "name": "GitHub account"
         }
       }
@@ -56,10 +56,10 @@
         },
         "repository": {
           "__rl": true,
-          "value": "radkit-agentic-workflows",
+          "value": "pyATS-loves-agenticops",
           "mode": "list",
-          "cachedResultName": "radkit-agentic-workflows",
-          "cachedResultUrl": "https://github.com/ponchotitlan/radkit-agentic-workflows"
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
         "title": "=[{{ $('Consolidate ticketing query').item.json.report_tag }}] [{{ $('Convert to JSON').item.json.priority }}] {{ $('Convert to JSON').item.json.title }}",
         "body": "={{ $('Convert to JSON').item.json.description }}\n\n📚 Reference report: {{ $('Consolidate ticketing query').item.json.report_url }}",
@@ -73,15 +73,15 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        1504,
-        96
+        3664,
+        32
       ],
-      "id": "fccafac4-7eea-4769-b019-73de778acd28",
+      "id": "a8cf3e36-e6a6-4493-a74b-db8c4d40fe7e",
       "name": "Create an issue",
       "webhookId": "0b777a2d-254b-4cf3-b721-9b1d79a1ab5e",
       "credentials": {
         "githubApi": {
-          "id": "PDqbRbIy6x8lk7mU",
+          "id": "kpixrBYVwR8zj5Tb",
           "name": "GitHub account"
         }
       }
@@ -97,42 +97,42 @@
         },
         "repository": {
           "__rl": true,
-          "value": "radkit-agentic-workflows",
+          "value": "pyATS-loves-agenticops",
           "mode": "list",
-          "cachedResultName": "radkit-agentic-workflows",
-          "cachedResultUrl": "https://github.com/ponchotitlan/radkit-agentic-workflows"
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "n8n/Reporting and Auditing for my RADKit/reports",
+        "filePath": "n8n/Reporting and Auditing for my network/reports",
         "asBinaryProperty": false,
         "additionalParameters": {}
       },
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -2080,
-        320
+        80,
+        256
       ],
-      "id": "7f78ebdf-1220-435a-bc6a-3ca5b81538c5",
+      "id": "818438bc-4917-4f43-bf90-1473414d0fe3",
       "name": "List report query files",
       "webhookId": "8b525fa1-eeb6-4e2a-a76f-e44ce5a1f6e0",
       "credentials": {
         "githubApi": {
-          "id": "PDqbRbIy6x8lk7mU",
+          "id": "kpixrBYVwR8zj5Tb",
           "name": "GitHub account"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const entries = $input.all().flatMap(item => {\n  const data = item.json;\n\n  if (Array.isArray(data)) return data;\n  if (Array.isArray(data.items)) return data.items;\n  if (Array.isArray(data.data)) return data.data;\n\n  return [data];\n});\n\nconst reportQueryFiles = entries\n  .filter(entry =>\n    entry &&\n    entry.type === 'file' &&\n    typeof entry.path === 'string' &&\n    entry.path.includes('/reports/') &&\n    entry.path.endsWith('.txt')\n  );\n\nreturn reportQueryFiles.map(file => ({\n  json: {\n    report_query_path: file.path\n  }\n}));"
+        "jsCode": "const entries = $input.all().flatMap(item => {\n  const data = item.json;\n\n  if (Array.isArray(data)) return data;\n  if (Array.isArray(data.items)) return data.items;\n  if (Array.isArray(data.data)) return data.data;\n\n  return [data];\n});\n\nconst reportQueryFiles = entries\n  .filter(entry =>\n    entry &&\n    entry.type === 'file' &&\n    typeof entry.path === 'string' &&\n    entry.path.includes('reports/') &&\n    entry.path.endsWith('.txt')\n  );\n\nreturn reportQueryFiles.map(file => ({\n  json: {\n    report_query_path: file.path\n  }\n}));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1872,
-        320
+        288,
+        256
       ],
-      "id": "54985960-d810-482c-997e-b4f65c7cd343",
+      "id": "94bea03c-d69d-4591-888e-3b47153a3168",
       "name": "Prepare report query files"
     },
     {
@@ -143,10 +143,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 1,
       "position": [
-        -1680,
-        320
+        480,
+        256
       ],
-      "id": "23d94276-2e2d-496e-961f-8f182c45e76b",
+      "id": "bd2037fd-4849-47b4-acd5-11468dde7c32",
       "name": "Loop Over Items"
     },
     {
@@ -160,27 +160,27 @@
         },
         "repository": {
           "__rl": true,
-          "value": "radkit-agentic-workflows",
+          "value": "pyATS-loves-agenticops",
           "mode": "list",
-          "cachedResultName": "radkit-agentic-workflows",
-          "cachedResultUrl": "https://github.com/ponchotitlan/radkit-agentic-workflows"
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "n8n/Reporting and Auditing for my RADKit/agents/network_report_agent.txt",
+        "filePath": "n8n/Reporting and Auditing for my network/agents/network_report_agent.txt",
         "asBinaryProperty": false,
         "additionalParameters": {}
       },
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -1392,
-        80
+        768,
+        16
       ],
-      "id": "db52e75d-694c-4d97-bdb0-17d14ea2c4d2",
+      "id": "fef13f89-2240-44ef-8959-012962bba703",
       "name": "Get the report agent prompt",
       "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
       "credentials": {
         "githubApi": {
-          "id": "PDqbRbIy6x8lk7mU",
+          "id": "kpixrBYVwR8zj5Tb",
           "name": "GitHub account"
         }
       }
@@ -196,27 +196,27 @@
         },
         "repository": {
           "__rl": true,
-          "value": "radkit-agentic-workflows",
+          "value": "pyATS-loves-agenticops",
           "mode": "list",
-          "cachedResultName": "radkit-agentic-workflows",
-          "cachedResultUrl": "https://github.com/ponchotitlan/radkit-agentic-workflows"
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
-        "filePath": "n8n/Reporting and Auditing for my RADKit/agents/network_ticketing_agent.txt",
+        "filePath": "n8n/Reporting and Auditing for my network/agents/network_ticketing_agent.txt",
         "asBinaryProperty": false,
         "additionalParameters": {}
       },
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        0,
-        0
+        2160,
+        -64
       ],
-      "id": "7e55c2a5-59b1-4e26-a07d-63d4b8b127a7",
+      "id": "39f1afc0-f639-4922-a5f5-eeefa2027b15",
       "name": "Get the ticketing agent prompt",
       "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
       "credentials": {
         "githubApi": {
-          "id": "PDqbRbIy6x8lk7mU",
+          "id": "kpixrBYVwR8zj5Tb",
           "name": "GitHub account"
         }
       }
@@ -228,10 +228,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1168,
-        80
+        992,
+        16
       ],
-      "id": "a8aeb9f9-1cc1-4690-ab49-6a12d6016aed",
+      "id": "409fa15b-c5a2-4ea2-bae1-ab3f20d30248",
       "name": "Decode report agent prompt"
     },
     {
@@ -241,10 +241,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        224,
-        0
+        2384,
+        -64
       ],
-      "id": "55743f29-f3f6-40ce-9dc0-685909cbd5cf",
+      "id": "b069e3bc-7c74-4858-8535-a903fe76ca87",
       "name": "Decode ticketing agent prompt"
     },
     {
@@ -256,10 +256,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        800,
-        112
+        2960,
+        48
       ],
-      "id": "d571a767-2e38-4ea7-9fa6-841513391c1d",
+      "id": "c7f98052-74f6-41c8-b35c-8716f42b0dba",
       "name": "Tickets AI Agent"
     },
     {
@@ -269,10 +269,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1104,
-        112
+        3264,
+        48
       ],
-      "id": "3002a861-ff7c-4f4f-b083-a27ff5719ec7",
+      "id": "36258a62-056d-4be3-9d25-67d53a67e694",
       "name": "Convert to JSON"
     },
     {
@@ -303,10 +303,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1280,
-        112
+        3440,
+        48
       ],
-      "id": "e046da37-537d-42d6-9d7d-b047a3f1d1f7",
+      "id": "6ffda52a-944e-4c81-b4a3-5dcc52aa0a53",
       "name": "Is there an issue?"
     },
     {
@@ -316,10 +316,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        224,
-        208
+        2384,
+        144
       ],
-      "id": "80c32e22-37d8-435d-9bfa-883c873b2188",
+      "id": "8a731d0f-7011-4afb-8720-73b8a99c5633",
       "name": "Get report URL and tag"
     },
     {
@@ -333,10 +333,10 @@
         },
         "repository": {
           "__rl": true,
-          "value": "radkit-agentic-workflows",
+          "value": "pyATS-loves-agenticops",
           "mode": "list",
-          "cachedResultName": "radkit-agentic-workflows",
-          "cachedResultUrl": "https://github.com/ponchotitlan/radkit-agentic-workflows"
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
         },
         "filePath": "={{ $json.report_query_path }}",
         "asBinaryProperty": false,
@@ -345,15 +345,15 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -1392,
-        320
+        768,
+        256
       ],
-      "id": "650b98c5-3ec7-460f-bc1b-d4d1b0b2c15a",
+      "id": "f93ca211-9d73-4dc3-bd36-2b221d96d9df",
       "name": "Get the report query file",
       "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
       "credentials": {
         "githubApi": {
-          "id": "PDqbRbIy6x8lk7mU",
+          "id": "kpixrBYVwR8zj5Tb",
           "name": "GitHub account"
         }
       }
@@ -371,14 +371,14 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        144,
-        496
+        2304,
+        432
       ],
-      "id": "fa9beb13-2bde-4d5e-b28f-6856b3a2e154",
+      "id": "0fe6d140-11b7-4cd7-88fe-7776f0cf1489",
       "name": "Anthropic Chat Model1",
       "credentials": {
         "anthropicApi": {
-          "id": "4owz77VYxvGXcz9k",
+          "id": "rfGYsOsA1LgA8sLx",
           "name": "Anthropic account"
         }
       }
@@ -391,10 +391,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        -432,
-        384
+        1728,
+        320
       ],
-      "id": "d4f20888-4b35-4b6d-93d8-73bace9c643a",
+      "id": "4b60432e-a2be-4a4c-a610-f5ac23da07ef",
       "name": "Simple Memory"
     },
     {
@@ -408,10 +408,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        -384,
-        112
+        1776,
+        48
       ],
-      "id": "650a850a-72c9-4f82-9fe8-fa392dcf53cd",
+      "id": "e46c1432-7744-46c4-986f-a2de55d52d0d",
       "name": "Reports AI Agent"
     },
     {
@@ -421,10 +421,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1168,
-        320
+        992,
+        256
       ],
-      "id": "eeb96ed2-0ed3-40d0-a48b-2247b1ec1951",
+      "id": "0f056bcb-a06c-45b4-8efa-8fff8b9cf02f",
       "name": "Decode report query file"
     },
     {
@@ -434,10 +434,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -784,
-        96
+        1376,
+        32
       ],
-      "id": "f9b5083b-c13f-41b5-9335-d905ec0647c4",
+      "id": "a41ce62b-0a89-4e6d-bdae-1d6a9b10086d",
       "name": "Merge report query data"
     },
     {
@@ -447,10 +447,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -560,
-        112
+        1600,
+        48
       ],
-      "id": "90328197-0572-415a-bf56-8bfa831fe230",
+      "id": "abe5ccff-51a3-4acc-8661-ba67c29e63ff",
       "name": "Consolidate report query"
     },
     {
@@ -460,10 +460,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        448,
-        96
+        2608,
+        32
       ],
-      "id": "77fe9b2c-0e83-4f37-90da-c620c3a9a482",
+      "id": "c3e98b32-6642-495a-984a-fc04ed4bcd50",
       "name": "Merge ticketing query data"
     },
     {
@@ -473,10 +473,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        640,
-        112
+        2800,
+        48
       ],
-      "id": "8fad94ef-ed4b-4c5d-9493-44d411846e22",
+      "id": "e62974d3-90b5-4512-b198-639bcc33e510",
       "name": "Consolidate ticketing query"
     },
     {
@@ -490,10 +490,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -2288,
-        176
+        -128,
+        112
       ],
-      "id": "82a1f10c-3921-4467-9bd7-5f116d64d81c",
+      "id": "04ea62f1-73e0-4067-927d-36e1b8a4420b",
       "name": "Schedule Trigger"
     },
     {
@@ -503,105 +503,85 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1280,
-        624
+        880,
+        560
       ],
-      "id": "5f74e5f4-83c1-4b71-ab6f-802f9d06d073",
+      "id": "6bff122e-0741-4dc9-ae58-0523fd135712",
       "name": "Random execution ID for memory"
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://webexapis.com/v1/messages",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "ciscoWebexOAuth2Api",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "roomId",
-              "value": "Y2lzY29zcGFyazovL3VzL1JPT00vOGExMmJlMjAtYzlmNS0xMWYwLTkzYzAtMjEyOGM2M2I4MThm"
-            },
-            {
-              "name": "text",
-              "value": "=An automated report for your RADKit service was generated"
-            },
-            {
-              "name": "attachments",
-              "value": "={{ [\n  {\n    contentType: 'application/vnd.microsoft.card.adaptive',\n    content: {\n      $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',\n      type: 'AdaptiveCard',\n      version: '1.3',\n      body: [\n        {\n          type: 'TextBlock',\n          size: 'Large',\n          weight: 'Bolder',\n          text: '📝 Automated Report Generation'\n        },\n        {\n          type: 'TextBlock',\n          size: 'medium',\n          isSubtle: true,\n          wrap: true,\n          text: '✨ A new report regarding your RADKit service is available!'\n        },\n        {\n          type: 'FactSet',\n          facts: [\n            { title: '🏷️ Report tag:', value: $('Consolidate report query').item.json.file_prefix || 'unknown' }\n          ]\n        },\n        {\n          type: 'TextBlock',\n          size: 'Small',\n          isSubtle: true,\n          wrap: true,\n          text: '⚠️ This report raised compliance issues! Click on the buttons below to navigate to the report and issues raised'\n        }\n      ],\n      actions: [\n        {\n          type: 'Action.OpenUrl',\n          title: '📄 Open GitHub report',\n          url: $('Consolidate ticketing query').item.json.report_url || 'https://github.com/ponchotitlan/radkit-loves-agenticops/tree/main/reports/files'\n        },\n        {\n          type: 'Action.OpenUrl',\n          title: '🐛 Open GitHub issue',\n          url: $json.html_url || 'https://github.com/ponchotitlan/radkit-loves-agenticops/issues'\n        }\n      ]\n    }\n  }\n] }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1712,
-        384
-      ],
-      "id": "528e6c06-a5d5-4cb8-8639-82678b059b4d",
-      "name": "Send Card with Report and Issue",
-      "credentials": {
-        "ciscoWebexOAuth2Api": {
-          "id": "HJLbFPzQ921k35AQ",
-          "name": "Cisco Webex account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://webexapis.com/v1/messages",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "ciscoWebexOAuth2Api",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "roomId",
-              "value": "Y2lzY29zcGFyazovL3VzL1JPT00vOGExMmJlMjAtYzlmNS0xMWYwLTkzYzAtMjEyOGM2M2I4MThm"
-            },
-            {
-              "name": "text",
-              "value": "=An automated report for your RADKit service was generated"
-            },
-            {
-              "name": "attachments",
-              "value": "={{ [\n  {\n    contentType: 'application/vnd.microsoft.card.adaptive',\n    content: {\n      $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',\n      type: 'AdaptiveCard',\n      version: '1.3',\n      body: [\n        {\n          type: 'TextBlock',\n          size: 'Large',\n          weight: 'Bolder',\n          text: '📝 Automated Report Generation'\n        },\n        {\n          type: 'TextBlock',\n          size: 'medium',\n          isSubtle: true,\n          wrap: true,\n          text: '✨ A new report regarding your RADKit service is available!'\n        },\n        {\n          type: 'FactSet',\n          facts: [\n            { title: '🏷️ Report tag:', value: $('Consolidate report query').item.json.file_prefix || 'unknown' }\n          ]\n        }\n      ],\n      actions: [\n        {\n          type: 'Action.OpenUrl',\n          title: '📄 Open GitHub report',\n          url: $('Consolidate ticketing query').item.json.report_url || 'https://github.com/ponchotitlan/radkit-loves-agenticops/tree/main/reports/files'\n        }\n      ]\n    }\n  }\n] }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1712,
-        624
-      ],
-      "id": "b8a53e6e-f2e1-4c89-9a2b-586f0e44753d",
-      "name": "Send Card with Report",
-      "credentials": {
-        "ciscoWebexOAuth2Api": {
-          "id": "HJLbFPzQ921k35AQ",
-          "name": "Cisco Webex account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "endpointUrl": "http://host.docker.internal:8083/mcp",
+        "endpointUrl": "http://host.docker.internal:8000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "pyats_list_devices",
+          "pyats_run_show_command",
+          "pyats_show_running_config",
+          "pyats_show_logging",
+          "pyats_ping_from_network_device",
+          "pyats_run_linux_command",
+          "pyats_run_dynamic_test"
+        ],
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1.2,
       "position": [
-        -192,
-        384
+        1968,
+        320
       ],
-      "id": "3ca8062a-04b5-474a-8248-cf5dab1b66f9",
+      "id": "a6388b86-ce86-46f8-8534-9676d5ffcedb",
       "name": "Cisco RADKit MCP - Read-Only Mode"
+    },
+    {
+      "parameters": {
+        "channel": "C0B61KVMS74",
+        "text": "=📝 Automated Report Generation",
+        "jsonParameters": true,
+        "otherOptions": {},
+        "attachments": [],
+        "attachmentsJson": "[]",
+        "blocksJson": "={{ JSON.stringify([\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"📝 Automated Report Generation\",\n      \"emoji\": true\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"✨ A new report regarding your network is available!\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🏷️ Report tag*\\n\" + ( $('Consolidate report query').item.json.file_prefix|| \"N/A\")\n      },\n      {\n      \"type\": \"mrkdwn\",\n      \"text\": \"<\" + $('Consolidate ticketing query').item.json.report_url + \"|📝 Open report>\"\n    }\n    ]\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"⚠️ This report raised compliance issues!\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"<\" + $json.html_url + \"|🔥 Open issue>\"\n      }\n    ]\n  }\n]) }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        3872,
+        304
+      ],
+      "id": "ef43ae3e-d395-4a15-94fd-2b3f117df8a9",
+      "name": "Send Card with Report and Issue",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channel": "C0B61KVMS74",
+        "text": "=📝 Automated Report Generation",
+        "jsonParameters": true,
+        "otherOptions": {},
+        "attachments": [],
+        "attachmentsJson": "[]",
+        "blocksJson": "={{ JSON.stringify([\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"📝 Automated Report Generation\",\n      \"emoji\": true\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"✨ A new report regarding your network is available!\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🏷️ Report tag*\\n\" + ( $('Consolidate report query').item.json.file_prefix|| \"N/A\")\n      },\n      {\n      \"type\": \"mrkdwn\",\n      \"text\": \"<\" + $('Consolidate ticketing query').item.json.report_url + \"|📝 Open report>\"\n    }\n    ]\n  }\n]) }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        3872,
+        544
+      ],
+      "id": "fdebd58b-0943-466c-a8e3-e08f813a0a2f",
+      "name": "Send Card with Report",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -902,28 +882,6 @@
         ]
       ]
     },
-    "Send Card with Report": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Send Card with Report and Issue": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Create an issue": {
       "main": [
         [
@@ -945,6 +903,28 @@
           }
         ]
       ]
+    },
+    "Send Card with Report": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Card with Report and Issue": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -952,24 +932,24 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "ff6109b6-6e9c-480e-b7d8-bfb70b1eba56",
+  "versionId": "0f9a1679-cb9c-4837-913b-cae216469712",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "7a0ec3830466234e1b2e9214ba36fcbcb83f2f3930ed2177b8383176a56744f3"
+    "instanceId": "50fb4d2f3360a0e82364e133321a88b55bc7b875b40069cddb631dad426c79a6"
   },
-  "id": "JjlI7Pw2W5SFab9k",
+  "id": "yAo1lX8pmN5gxqIY",
   "tags": [
     {
-      "name": "reporting",
-      "id": "3833Jhve5Q85yP1t",
-      "updatedAt": "2026-05-21T06:28:03.163Z",
-      "createdAt": "2026-05-21T06:28:03.163Z"
+      "updatedAt": "2026-05-25T15:48:31.564Z",
+      "createdAt": "2026-05-25T15:48:31.564Z",
+      "id": "RI2oyLHd5oNJTXhq",
+      "name": "netops"
     },
     {
-      "name": "netops",
-      "id": "vFVzmjriTOWoVB8p",
-      "updatedAt": "2026-05-21T06:24:22.685Z",
-      "createdAt": "2026-05-21T06:24:22.685Z"
+      "updatedAt": "2026-05-25T18:32:01.778Z",
+      "createdAt": "2026-05-25T18:32:01.778Z",
+      "id": "aA1WrsV70P2sqfzP",
+      "name": "reporting"
     }
   ]
 }
