@@ -1,0 +1,3 @@
+- Prefijo de archivo: analisis_qos
+- Consulta: Pérdidas en colas y estadísticas de tráfico moldeado
+- Notas: Genera un incidente para dispositivos con interfaces cuyo uso sea mayor al 70%. También genera un incidente para cualquier dispositivo que no tenga ninguna configuración de QoS implementada. De lo contrario, no generes nada

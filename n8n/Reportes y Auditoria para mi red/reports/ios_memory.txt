@@ -1,0 +1,3 @@
+- Prefijo de archivo: memoria-ios
+- Consulta: Revisa el uso actual de memoria de todos los dispositivos IOS, IOSXR e IOSXE del inventario
+- Notas: Si el uso de memoria está por encima del 80%, genera un incidente para visibilidad. De lo contrario, no generes nada

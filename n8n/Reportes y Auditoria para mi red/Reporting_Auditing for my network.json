@@ -1,0 +1,955 @@
+{
+  "name": "Reportes y Auditoría para mi red",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        256
+      ],
+      "id": "6c3534c8-55f4-4c73-80cf-920875adf452",
+      "name": "Al hacer clic en ‘Ejecutar flujo’"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "=n8n/Reportes y Auditoria para mi red/reports/files/{{ $('Consolidar consulta del reporte').item.json.file_prefix }}_{{ $now}}.md",
+        "fileContent": "={{ $json.output }}",
+        "commitMessage": "={{ $('Consolidar consulta del reporte').item.json.file_prefix }} reporte generado"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        144
+      ],
+      "id": "50d8430b-b69f-4b6b-95e0-14c94cc94506",
+      "name": "Crear archivo de reporte",
+      "webhookId": "e166c285-6ad1-4efd-a30c-0ea0eba19ff5",
+      "credentials": {
+        "githubApi": {
+          "id": "kpixrBYVwR8zj5Tb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "title": "=[{{ $('Consolidar consulta de incidencias').item.json.report_tag }}] [{{ $('Convertir a JSON').item.json.priority }}] {{ $('Convertir a JSON').item.json.title }}",
+        "body": "={{ $('Convertir a JSON').item.json.description }}\n\n📚 Reporte de referencia: {{ $('Consolidar consulta de incidencias').item.json.report_url }}",
+        "labels": [
+          {
+            "label": "={{ $json.priority }}"
+          }
+        ],
+        "assignees": []
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        3664,
+        32
+      ],
+      "id": "a8cf3e36-e6a6-4493-a74b-db8c4d40fe7e",
+      "name": "Crear una incidencia",
+      "webhookId": "0b777a2d-254b-4cf3-b721-9b1d79a1ab5e",
+      "credentials": {
+        "githubApi": {
+          "id": "kpixrBYVwR8zj5Tb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "n8n/Reportes y Auditoria para mi red/reports",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        256
+      ],
+      "id": "818438bc-4917-4f43-bf90-1473414d0fe3",
+      "name": "Listar archivos de consultas de reportes",
+      "webhookId": "8b525fa1-eeb6-4e2a-a76f-e44ce5a1f6e0",
+      "credentials": {
+        "githubApi": {
+          "id": "kpixrBYVwR8zj5Tb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const entries = $input.all().flatMap(item => {\n  const data = item.json;\n\n  if (Array.isArray(data)) return data;\n  if (Array.isArray(data.items)) return data.items;\n  if (Array.isArray(data.data)) return data.data;\n\n  return [data];\n});\n\nconst reportQueryFiles = entries\n  .filter(entry =>\n    entry &&\n    entry.type === 'file' &&\n    typeof entry.path === 'string' &&\n    entry.path.includes('reports/') &&\n    entry.path.endsWith('.txt')\n  );\n\nreturn reportQueryFiles.map(file => ({\n  json: {\n    report_query_path: file.path\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        256
+      ],
+      "id": "94bea03c-d69d-4591-888e-3b47153a3168",
+      "name": "Preparar archivos de consultas de reportes"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        480,
+        256
+      ],
+      "id": "bd2037fd-4849-47b4-acd5-11468dde7c32",
+      "name": "Iterar elementos"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "n8n/Reportes y Auditoria para mi red/agents/network_report_agent.txt",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        16
+      ],
+      "id": "fef13f89-2240-44ef-8959-012962bba703",
+      "name": "Obtener prompt del agente de reportes",
+      "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
+      "credentials": {
+        "githubApi": {
+          "id": "kpixrBYVwR8zj5Tb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "n8n/Reportes y Auditoria para mi red/agents/network_ticketing_agent.txt",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        -64
+      ],
+      "id": "39f1afc0-f639-4922-a5f5-eeefa2027b15",
+      "name": "Obtener prompt del agente de incidencias",
+      "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
+      "credentials": {
+        "githubApi": {
+          "id": "kpixrBYVwR8zj5Tb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the base64 content\nconst base64Content = $input.first().json.content;\n\n// Decode from base64\nconst decodedContent = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Return the decoded content\nreturn {\n  json: {\n    netauto_agent_prompt: decodedContent\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        16
+      ],
+      "id": "409fa15b-c5a2-4ea2-bae1-ab3f20d30248",
+      "name": "Decodificar prompt del agente de reportes"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the base64 content\nconst base64Content = $input.first().json.content;\n\n// Decode from base64\nconst decodedContent = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Return the decoded content\nreturn {\n  json: {\n    ticketing_agent_prompt: decodedContent\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2384,
+        -64
+      ],
+      "id": "b069e3bc-7c74-4858-8535-a903fe76ca87",
+      "name": "Decodificar prompt del agente de incidencias"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.ticketing_agent_prompt }}\n\nReporte: {{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2960,
+        48
+      ],
+      "id": "c7f98052-74f6-41c8-b35c-8716f42b0dba",
+      "name": "Agente de incidencias"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  let outputText = item.json.output;\n  \n  // Remove markdown code block markers (```json and ```)\n  outputText = outputText.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\n  \n  // Parse the JSON string into an object\n  const parsedJson = JSON.parse(outputText);\n  \n  return { json: parsedJson };\n});\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3264,
+        48
+      ],
+      "id": "36258a62-056d-4be3-9d25-67d53a67e694",
+      "name": "Convertir a JSON"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "44b388a2-943d-4801-b559-c51f2b077113",
+              "leftValue": "={{ $json.create_issue }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3440,
+        48
+      ],
+      "id": "6ffda52a-944e-4c81-b4a3-5dcc52aa0a53",
+      "name": "¿Hay una incidencia?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return the files data\nconst items = $input.all();\n\nconst output = items.map(item => {\n  return {\n    json: {\n      report_url: item.json.content.html_url,\n      report_tag: item.json.commit.message\n    }\n  };\n});\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2384,
+        144
+      ],
+      "id": "8a731d0f-7011-4afb-8720-73b8a99c5633",
+      "name": "Obtener URL y etiqueta del reporte"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "ponchotitlan",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "pyATS-loves-agenticops",
+          "mode": "list",
+          "cachedResultName": "pyATS-loves-agenticops",
+          "cachedResultUrl": "https://github.com/ponchotitlan/pyATS-loves-agenticops"
+        },
+        "filePath": "={{ $json.report_query_path }}",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        256
+      ],
+      "id": "f93ca211-9d73-4dc3-bd36-2b221d96d9df",
+      "name": "Obtener archivo de consulta del reporte",
+      "webhookId": "1775c2e6-93b0-4333-b8bd-cb5a9958fa9e",
+      "credentials": {
+        "githubApi": {
+          "id": "kpixrBYVwR8zj5Tb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        2304,
+        432
+      ],
+      "id": "0fe6d140-11b7-4cd7-88fe-7776f0cf1489",
+      "name": "Modelo de chat de Anthropic 1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "rfGYsOsA1LgA8sLx",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Consolidar consulta del reporte').item.json.executionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1728,
+        320
+      ],
+      "id": "4b60432e-a2be-4a4c-a610-f5ac23da07ef",
+      "name": "Memoria simple"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.netauto_agent_prompt }}\n\n- Consulta: {{ $json.query }}\n- Notas: {{ $json.notes }}\n",
+        "options": {
+          "maxIterations": 100
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1776,
+        48
+      ],
+      "id": "e46c1432-7744-46c4-986f-a2de55d52d0d",
+      "name": "Agente de reportes"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the base64 content\nconst source = $input.first().json;\nconst base64Content = source.content;\n\n// Decode from base64\nconst text = Buffer.from(base64Content, 'base64').toString('utf-8');\n\n// Ensure it's a string\nconst raw = typeof text === 'string' ? text : JSON.stringify(text);\n\n// Split into lines\nconst lines = raw.split('\\n');\n\n// Object to store parsed fields\nconst result = {\n  report_query_path: source.path\n};\n\nfor (const line of lines) {\n  // Match pattern: - Key: Value\n  const match = line.match(/-\\s*(.+?):\\s*(.+)/);\n  if (match) {\n    const key = match[1]\n      .trim()\n      .toLowerCase()\n      .replace(/\\s+/g, '_'); // e.g. \"File Prefix\" -> \"file_prefix\"\n\n    const value = match[2].trim();\n    result[key] = value;\n  }\n}\n\n// Return as JSON\nreturn [\n  {\n    json: result\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        256
+      ],
+      "id": "0f056bcb-a06c-45b4-8efa-8fff8b9cf02f",
+      "name": "Decodificar archivo de consulta del reporte"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1376,
+        32
+      ],
+      "id": "a41ce62b-0a89-4e6d-bdae-1d6a9b10086d",
+      "name": "Combinar datos de la consulta del reporte"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming items\nconst items = $input.all();\n\n// Merge all json objects into one\nconst merged = {};\n\nfor (const item of items) {\n  Object.assign(merged, item.json);\n}\n\n// Return as a single item\nreturn [\n  {\n    json: merged\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        48
+      ],
+      "id": "abe5ccff-51a3-4acc-8661-ba67c29e63ff",
+      "name": "Consolidar consulta del reporte"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2608,
+        32
+      ],
+      "id": "c3e98b32-6642-495a-984a-fc04ed4bcd50",
+      "name": "Combinar datos de la consulta de incidencias"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming items\nconst items = $input.all();\n\n// Merge all json objects into one\nconst merged = {};\n\nfor (const item of items) {\n  Object.assign(merged, item.json);\n}\n\n// Return as a single item\nreturn [\n  {\n    json: merged\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        48
+      ],
+      "id": "e62974d3-90b5-4512-b198-639bcc33e510",
+      "name": "Consolidar consulta de incidencias"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -128,
+        112
+      ],
+      "id": "04ea62f1-73e0-4067-927d-36e1b8a4420b",
+      "name": "Disparador programado"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Genera una cadena aleatoria para los IDs de sesión en memoria\nreturn [{\n  json: {\n    executionId: Math.random().toString(36).substring(2, 9)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        560
+      ],
+      "id": "6bff122e-0741-4dc9-ae58-0523fd135712",
+      "name": "ID aleatorio de ejecución para memoria"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "pyats_list_devices",
+          "pyats_run_show_command",
+          "pyats_show_running_config",
+          "pyats_show_logging",
+          "pyats_ping_from_network_device",
+          "pyats_run_linux_command",
+          "pyats_run_dynamic_test"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        320
+      ],
+      "id": "a6388b86-ce86-46f8-8534-9676d5ffcedb",
+      "name": "Cisco RADKit MCP - modo de solo lectura"
+    },
+    {
+      "parameters": {
+        "channel": "C0B61KVMS74",
+        "text": "=📝 Generación automática de reportes",
+        "jsonParameters": true,
+        "otherOptions": {},
+        "attachments": [],
+        "attachmentsJson": "[]",
+        "blocksJson": "={{ JSON.stringify([\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"📝 Generación automática de reportes\",\n      \"emoji\": true\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"✨ Ya hay un nuevo reporte disponible para tu red.\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🏷️ Etiqueta del reporte*\\n\" + ( $('Consolidar consulta del reporte').item.json.file_prefix|| \"N/A\")\n      },\n      {\n      \"type\": \"mrkdwn\",\n      \"text\": \"<\" + $('Consolidar consulta de incidencias').item.json.report_url + \"|📝 Abrir reporte>\"\n    }\n    ]\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"⚠️ ¡Este reporte generó incidencias de cumplimiento!\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"<\" + $json.html_url + \"|🔥 Abrir incidencia>\"\n      }\n    ]\n  }\n]) }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        3872,
+        304
+      ],
+      "id": "ef43ae3e-d395-4a15-94fd-2b3f117df8a9",
+      "name": "Enviar tarjeta con reporte e incidencia",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channel": "C0B61KVMS74",
+        "text": "=📝 Generación automática de reportes",
+        "jsonParameters": true,
+        "otherOptions": {},
+        "attachments": [],
+        "attachmentsJson": "[]",
+        "blocksJson": "={{ JSON.stringify([\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"📝 Generación automática de reportes\",\n      \"emoji\": true\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"✨ Ya hay un nuevo reporte disponible para tu red.\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🏷️ Etiqueta del reporte*\\n\" + ( $('Consolidar consulta del reporte').item.json.file_prefix|| \"N/A\")\n      },\n      {\n      \"type\": \"mrkdwn\",\n      \"text\": \"<\" + $('Consolidar consulta de incidencias').item.json.report_url + \"|📝 Abrir reporte>\"\n    }\n    ]\n  }\n]) }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        3872,
+        544
+      ],
+      "id": "fdebd58b-0943-466c-a8e3-e08f813a0a2f",
+      "name": "Enviar tarjeta con reporte",
+      "credentials": {
+        "slackApi": {
+          "id": "zTAkKfcIyZa9aUQ0",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "List report query files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear archivo de reporte": {
+      "main": [
+        [
+          {
+            "node": "Obtener URL y etiqueta del reporte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener prompt del agente de reportes": {
+      "main": [
+        [
+          {
+            "node": "Decodificar prompt del agente de reportes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener prompt del agente de incidencias": {
+      "main": [
+        [
+          {
+            "node": "Decodificar prompt del agente de incidencias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decodificar prompt del agente de reportes": {
+      "main": [
+        [
+          {
+            "node": "Merge report query data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decodificar prompt del agente de incidencias": {
+      "main": [
+        [
+          {
+            "node": "Merge ticketing query data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente de incidencias": {
+      "main": [
+        [
+          {
+            "node": "Convertir a JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir a JSON": {
+      "main": [
+        [
+          {
+            "node": "Is there an issue?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is there an issue?": {
+      "main": [
+        [
+          {
+            "node": "Crear una incidencia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar tarjeta con reporte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener URL y etiqueta del reporte": {
+      "main": [
+        [
+          {
+            "node": "Merge ticketing query data",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "List report query files": {
+      "main": [
+        [
+          {
+            "node": "Prepare report query files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare report query files": {
+      "main": [
+        [
+          {
+            "node": "Iterar elementos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iterar elementos": {
+      "main": [
+        [
+          {
+            "node": "Obtener archivo de consulta del reporte",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Random execution ID for memory",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Obtener prompt del agente de reportes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener archivo de consulta del reporte": {
+      "main": [
+        [
+          {
+            "node": "Decode report query file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente de reportes",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Agente de incidencias",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memoria simple": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente de reportes",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente de reportes": {
+      "main": [
+        [
+          {
+            "node": "Crear archivo de reporte",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge ticketing query data",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Obtener prompt del agente de incidencias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decode report query file": {
+      "main": [
+        [
+          {
+            "node": "Merge report query data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge report query data": {
+      "main": [
+        [
+          {
+            "node": "Consolidar consulta del reporte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidar consulta del reporte": {
+      "main": [
+        [
+          {
+            "node": "Agente de reportes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge ticketing query data": {
+      "main": [
+        [
+          {
+            "node": "Consolidar consulta de incidencias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidar consulta de incidencias": {
+      "main": [
+        [
+          {
+            "node": "Agente de incidencias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disparador programado": {
+      "main": [
+        [
+          {
+            "node": "List report query files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random execution ID for memory": {
+      "main": [
+        [
+          {
+            "node": "Merge report query data",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Crear una incidencia": {
+      "main": [
+        [
+          {
+            "node": "Enviar tarjeta con reporte e incidencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cisco RADKit MCP - modo de solo lectura": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente de reportes",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar tarjeta con reporte": {
+      "main": [
+        [
+          {
+            "node": "Iterar elementos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar tarjeta con reporte e incidencia": {
+      "main": [
+        [
+          {
+            "node": "Iterar elementos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0f9a1679-cb9c-4837-913b-cae216469712",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "50fb4d2f3360a0e82364e133321a88b55bc7b875b40069cddb631dad426c79a6"
+  },
+  "id": "yAo1lX8pmN5gxqIY",
+  "tags": [
+    {
+      "updatedAt": "2026-05-25T15:48:31.564Z",
+      "createdAt": "2026-05-25T15:48:31.564Z",
+      "id": "RI2oyLHd5oNJTXhq",
+      "name": "netops"
+    },
+    {
+      "updatedAt": "2026-05-25T18:32:01.778Z",
+      "createdAt": "2026-05-25T18:32:01.778Z",
+      "id": "aA1WrsV70P2sqfzP",
+      "name": "reporting"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+- Prefijo de archivo: estado_endurecimiento_iosxe
+- Consulta: Cumplimiento con la guía de endurecimiento
+- Notas: Solo dispositivos IOS-XE. La guía de endurecimiento está en esta URL: https://sec.cloudapps.cisco.com/security/center/resources/IOS_XE_hardening
