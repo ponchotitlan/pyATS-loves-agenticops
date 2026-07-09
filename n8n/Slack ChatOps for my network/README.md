@@ -188,7 +188,7 @@ If you want to start only specific services, use the table below:
 > If you already have a n8n server of your own running, you just need to start the `pyats-mcp` service, and the `cloudflare-tunnel` in case your n8n instance is not available in the cloud for the Slack webhooks.
 
 ### 4. Import the workflow into n8n
-Open n8n in your browser using the address provided in `N8N_PUBLIC_URL` or your own instance address. Create a new workflow and import [this JSON file](Multi-Agent%20Network%20ChatOps%20Assistant%20-%20Template.json).
+Open n8n in your browser using the address provided in `N8N_PUBLIC_URL` or your own instance address. Create a new workflow and import [this JSON file](Multi-Agent%20Network%20ChatOps%20Assistant%20with%20Slack.json).
 
 ### 5. Setup the MCP nodes
 Click on each of the two MCP nodes entitled `pyATS MCP` and provide the address of your MCP server container in the `Endpoint` field.
