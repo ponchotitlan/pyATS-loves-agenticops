@@ -2,6 +2,7 @@
 
 <div align="center">
 <img src="../../images/slack_chatops_workflow.png"/>
+<img src="../../images/slack_chatops_workflow_2.png"/>
 </div>
 
 A practical **low-code, agentic ChatOps workflow** built in **n8n** for safe network automation via **Slack**.  
