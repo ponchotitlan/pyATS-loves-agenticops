@@ -25,16 +25,19 @@ Before diving in, make sure you have these essentials ready:
 
 - 🐳 **Docker**: For containerized workflow execution
 - 🐍 **Python 3.10+**: Required for MCP server operations
+- 🔑 **Anthropic API key**: Required by the AI agent nodes in the ChatOps workflow
+- 💬 **Slack workspace + Slack app**: Required for bot mentions and interactive approvals
+- 🌐 **Public HTTPS URL for n8n webhooks**: Cloudflare Tunnel token + domain (or ngrok equivalent)
 
 ---
 
 ## 🚦 Getting Started
 
 1. **Clone this repository** to your local machine
-2. **Navigate to the `n8n` directory**
+2. **Adjust `testbed.yaml`** with your own network inventory and credentials
 3. **Explore the workflow folders**: Each folder contains:
-   - 📄 A `.json` workflow file ready to import into n8n
    - 📚 Dedicated documentation in `.md` files explaining setup and usage
+   - 📄 A `.json` workflow file ready to import into n8n
 
 Each workflow is self-contained with its own configuration and detailed instructions. Simply pick the one that fits your use case and follow along! 🎓
 

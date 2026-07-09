@@ -1,7 +1,15 @@
 # ⚙️ Slack setup for n8n workflows
 
-This document describes how to setup your Slack system for interacting with the Multi-Channel ChatOps n8n workflow in this repository.</br>
+This document describes how to set up your Slack system for interacting with the Multi-Channel ChatOps n8n workflow in this repository.</br>
 **Buckle up!**
+
+## Before you start
+
+- Ensure your n8n URL is publicly reachable over HTTPS (Cloudflare Tunnel, ngrok, or equivalent).
+- Ensure your workflow is imported in n8n and both webhook nodes are visible:
+	- `When your Slack bot is mentioned` (Slack Trigger)
+	- `When a Card is Clicked` (Webhook for interactive button actions)
+- Keep your workflow open in n8n while configuring URLs in Slack.
 
 1. Create a Workspace in your Slack. In this case, we will use ```My Network Ops✨```
 
@@ -11,7 +19,7 @@ This document describes how to setup your Slack system for interacting with the 
 </div>
 </br>
 
-2. Create Slack App at `api.slack.com/apps` in the Workspace aforementioned. Our app will be called ```RADKiteer```
+2. Create Slack App at `api.slack.com/apps` in the Workspace aforementioned:
 
 </br>
 <div align="center">
@@ -24,13 +32,14 @@ This document describes how to setup your Slack system for interacting with the 
 - `channels:history`
 - `channels:read`
 - `chat:write`
+- `chat:write.public` (optional but useful if your bot posts to public channels before being invited)
 - `groups:history`
 - `groups:read`
 - `im:history`
 - `im:read`
 - `im:write`
 
-4. Also in `OAuth & Permissions`, scroll to `OAuth Tokens` and generate a new token. Take note of this token as we will need them later.
+4. Also in `OAuth & Permissions`, scroll to `OAuth Tokens` and generate a new token. Take note of this token as we will need it later.
 
 </br>
 <div align="center">
@@ -38,9 +47,9 @@ This document describes how to setup your Slack system for interacting with the 
 </div>
 </br>
 
-5. Click the button `Reinstall to My Network Ops✨` to activate this token.
+5. Click the button `Reinstall to <your_room_name>` to activate this token.
 
-6. In your n8n workflow, open the `Slack Trigger` block. Select `Credential to connect with` and add a new credential. In the `Access Token` field, put the OAuth token generated in step no.4. and test the connection.
+6. In your n8n workflow, open the `Slack Trigger` block. Select `Credential` and add a new credential. In the `Access Token` field, put the OAuth token generated in step no.4. and test the connection.
 
 </br>
 <div align="center">
@@ -61,7 +70,7 @@ This document describes how to setup your Slack system for interacting with the 
 </div>
 </br>
 
-8. Go back to your app in `api.slack.com/apps`. Navigate to `Enable Event Subscriptions` > `Enable Events` > `Request URL` and provide the URL from the previous step
+8. Go back to your app in `api.slack.com/apps`. Navigate to `Enable Event Subscriptions` > `Enable Events` > `Request URL` and provide the URL from the previous step.
 
 </br>
 <div align="center">
@@ -77,7 +86,7 @@ This document describes how to setup your Slack system for interacting with the 
 </div>
 </br>
 
-9. In the same page, scroll to `Subscribe to bot events`. Add the event `app_mention`. Afterwards, click on `Save Changes`
+9. In the same page, scroll to `Subscribe to bot events`. Add the event `app_mention`. Afterwards, click on `Save Changes`.
 
 </br>
 <div align="center">
@@ -85,7 +94,7 @@ This document describes how to setup your Slack system for interacting with the 
 </div>
 </br>
 
-10. Navigate to `Settings` > `Install App` and click again `Reinstall to My Network Ops✨`
+10. Navigate to `Settings` > `Install App` and click again `Reinstall to <your_room_name>`.
 
 </br>
 <div align="center">
@@ -93,10 +102,32 @@ This document describes how to setup your Slack system for interacting with the 
 </div>
 </br>
 
-**Ready to test!** Create a new channel in your workspace, add the `RADKiteer` app and tag it to ask any question about your Cisco RADKit network:
+11. In your n8n workflow, open the node `When a Card is Clicked` and copy the webhook URL:
+
+- Use `Test URL` if your workflow is in test mode and you are executing that node.
+- Use `Production URL` if your workflow is active.
 
 </br>
 <div align="center">
-<img src="../images/slack_chat_example.png"/>
+<img src="../images/slack_webhook.png"/>
+</div>
+</br>
+
+12. Back in `api.slack.com/apps`, go to `Interactivity & Shortcuts` and enable `Interactivity`.
+13. Paste the URL from step 11 into the field `Request URL` and save:
+
+</br>
+<div align="center">
+<img src="../images/slack_interactivity.png"/>
+</div>
+</br>
+
+> ⚠️ If Slack cannot validate the interactivity URL in test mode, execute `When a Card is Clicked` first in n8n and retry.
+
+**Ready to test!** Create a new channel in your workspace, add your app and tag it to ask any question about your network!
+
+</br>
+<div align="center">
+<img src="../images/slack_02_inventory.png"/>
 </div>
 </br>

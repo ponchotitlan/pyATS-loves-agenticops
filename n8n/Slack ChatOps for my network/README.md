@@ -170,29 +170,46 @@ CLOUDFLARE_TUNNEL_TOKEN=your-cloudflare-tunnel-token
 N8N_PUBLIC_URL=https://n8n.your-domain.example
 ```
 
-### 3. Slack Setup
-✅💬 See [this frustration-free guide!](../../docs/SLACK-SETUP.md)
-
-### 4. Launching everything
-
-This repository contains a [docker compose file](../../docker-compose.yml) that launches a container for `n8n`, the `Cisco pyATS MCP server`, and the Clouflare Tunnel. Use the following commands to launch the Docker Compose file:
+### 3. Build and start
+Start all the docker compose services with the following command:
 
 ```bash
-docker compose up -d
+docker compose up --build -d
 ```
 
-The following services will be available in these locations:
+If you want to start only specific services, use the table below:
 
-| Service | Endpoint |
-|---|---|
-| 🎯 n8n | `https://n8n.your-domain.example` or `http://localhost:5678` |
-| 🤖 pyATS MCP server | `http://host.docker.internal:8000/mcp` |
+| Service | Command | What to adjust before running | Available at (URL:port) |
+|---|---|---|---|
+| n8n | `docker compose up -d n8n` | In `.env`, set `N8N_PUBLIC_URL` to your public HTTPS URL (used by webhook and editor base URLs) | `http://localhost:5678` |
+| pyats-mcp | `docker compose up -d pyats-mcp` | Update `testbed.yaml` with your device inventory, credentials, and management IPs. If you need a different port, change `MCP_PORT` and published port mapping in `docker-compose.yml`. | `http://localhost:8000/mcp` |
+| cloudflare-tunnel | `docker compose up -d cloudflare-tunnel` | In `.env`, set `CLOUDFLARE_TUNNEL_TOKEN`. Ensure `N8N_PUBLIC_URL` matches the hostname routed through your Cloudflare Tunnel. | No local HTTP endpoint. It exposes your public n8n URL (for example `https://n8n.your-domain.example`). |
 
-### 5. n8n workflow import
-1. Navigate to your n8n instance on a web browser
-2. Create a new workflow
-3. Import the file [Slack ChatOps for my network.json](Slack%20ChatOps%20for%20my%20network.json) included in this repository
-4. On the nodes referring to GitHub and Slack, create a new set of credentials using your GitHub Token and Slack bot Token
+> If you already have a n8n server of your own running, you just need to start the `pyats-mcp` service, and the `cloudflare-tunnel` in case your n8n instance is not available in the cloud for the Slack webhooks.
+
+### 4. Import the workflow into n8n
+Open n8n in your browser using the address provided in `N8N_PUBLIC_URL` or your own instance address. Create a new workflow and import [this JSON file](Multi-Agent%20Network%20ChatOps%20Assistant%20-%20Template.json).
+
+### 5. Setup the MCP nodes
+Click on each of the two MCP nodes entitled `pyATS MCP` and provide the address of your MCP server container in the `Endpoint` field.
+
+> If it is not in the same Docker network, remember to use an address of this sorts: `http://host.docker.internal:8000/mcp`
+
+Now, in the specific MCP node `pyATS MCP - Read-only Mode`, add read-only guardrails by selecting the following tools in the `Tools to Include` part:
+- `pyats_list_devices`
+- `pyats_run_show_command`
+- `pyats_show_running_config`
+- `pyats_show_logging`
+- `pyats_ping_from_network_device`
+- `pyats_run_linux_command`
+- `pyats_run_dynamic_test`
+
+<div align="center"></br>
+<img src="../../images/slack_mcp.png"/></br>
+</div>
+
+### 6. Slack Setup
+This one takes a bit more effort, but you've got this! Check [this frustration-free guide.](../../docs/SLACK-SETUP.md)
 
 ---
 
