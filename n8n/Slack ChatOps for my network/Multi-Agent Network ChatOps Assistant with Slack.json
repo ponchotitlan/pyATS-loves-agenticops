@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        32,
-        352
+        -3184,
+        768
       ],
-      "id": "b3de4979-1639-47e6-81be-01e4763af779",
+      "id": "e60e04f3-e5da-40a5-b578-85ff64897e06",
       "name": "Sticky Note"
     },
     {
@@ -26,10 +26,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        592,
-        352
+        -2624,
+        768
       ],
-      "id": "db65a1ea-f355-4c49-87a8-20369d403061",
+      "id": "4e58fae3-69ba-4929-be3a-b71bfe8cb8f5",
       "name": "Sticky Note1"
     },
     {
@@ -42,42 +42,42 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1264,
-        352
+        -1952,
+        768
       ],
-      "id": "087e2651-79e1-4c78-9bc3-fe4667f7beb7",
+      "id": "051d44ad-8f20-4da1-b00a-8d2e0b8ea594",
       "name": "Sticky Note2"
     },
     {
       "parameters": {
-        "content": "## Route planning outcome\n\nChecks whether the planning result requires a commit. Non-commit responses are sent directly back into the Slack thread.",
-        "height": 528,
-        "width": 960,
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Route planning outcome\n\nChecks whether the planning result requires a commit. Non-commit responses are sent directly back into the Slack thread.",
+        "height": 384,
+        "width": 528,
         "color": 7
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2192,
-        352
+        -1024,
+        816
       ],
-      "id": "89800154-e169-42df-8ac7-6f35af95ba9e",
+      "id": "cf1003a7-1770-4c20-97bc-94988145bf69",
       "name": "Sticky Note3"
     },
     {
       "parameters": {
         "content": "## Send commit approvals\n\nExpands planned commit cards, iterates through devices one at a time, and posts each interactive approval card to Slack.",
-        "height": 320,
-        "width": 672,
+        "height": 352,
+        "width": 752,
         "color": 7
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2448,
-        0
+        -784,
+        432
       ],
-      "id": "07d07f53-e769-433d-8379-84219e42cdce",
+      "id": "b1c31049-15bb-48e3-b663-8db22ce105ec",
       "name": "Sticky Note4"
     },
     {
@@ -90,26 +90,26 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        560,
-        1024
+        -2624,
+        1408
       ],
-      "id": "e54288af-61a6-4c6c-9724-b5126160f6e0",
+      "id": "718c5449-9c8e-4561-8e49-6e6218485cc5",
       "name": "Sticky Note5"
     },
     {
       "parameters": {
         "content": "## Acknowledge approved commit\n\nFor approved actions, creates a commit standby message and replaces the original Slack card so users know execution is in progress.",
-        "height": 336,
-        "width": 384,
+        "height": 320,
+        "width": 448,
         "color": 7
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1504,
-        992
+        -1776,
+        1408
       ],
-      "id": "7d7daa90-7d22-465c-9a65-b7e5184c65f3",
+      "id": "e3e61464-376a-4d14-821d-18f9451a6025",
       "name": "Sticky Note6"
     },
     {
@@ -122,26 +122,26 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1920,
-        1040
+        -1296,
+        1424
       ],
-      "id": "abaf1a28-bd70-468b-a469-baa6f025df66",
+      "id": "4851dfec-734e-4c94-ac00-06b1ad894787",
       "name": "Sticky Note7"
     },
     {
       "parameters": {
         "content": "## Replace cancelled card\n\nFor rejected actions, generates a cancellation phrase and updates the original Slack card to show that the proposed commit was cancelled.",
-        "height": 336,
-        "width": 384,
+        "height": 304,
+        "width": 448,
         "color": 7
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1488,
-        1520
+        -1776,
+        1792
       ],
-      "id": "f28a8b3f-f16d-401f-a1c5-f98630c7054e",
+      "id": "daa75e12-5fb8-45be-8a95-ea30965823d6",
       "name": "Sticky Note8"
     },
     {
@@ -169,12 +169,12 @@
         },
         "options": {}
       },
-      "id": "7ed407e3-7a63-432a-9a8e-0d1713ae1560",
+      "id": "7bbee332-6628-4342-b802-0940832e788b",
       "name": "Check If Commit Mode",
       "type": "n8n-nodes-base.if",
       "position": [
-        2240,
-        480
+        -960,
+        896
       ],
       "typeVersion": 2.2
     },
@@ -183,12 +183,12 @@
         "fieldToSplitOut": "cards",
         "options": {}
       },
-      "id": "552f1523-8ebc-4297-a1a8-86a816ead1bf",
+      "id": "cc4c93cd-d87f-46d6-8044-e7cbafe18f8c",
       "name": "Expand Commit Cards List",
       "type": "n8n-nodes-base.itemLists",
       "position": [
-        2496,
-        128
+        -704,
+        560
       ],
       "typeVersion": 3.1
     },
@@ -196,12 +196,12 @@
       "parameters": {
         "options": {}
       },
-      "id": "73d861f4-71ce-469d-8dfb-0e5bff13ab25",
+      "id": "ef2de402-b355-48e9-bffc-b52fc4e50774",
       "name": "Process Devices in Batches",
       "type": "n8n-nodes-base.splitInBatches",
       "position": [
-        2736,
-        128
+        -464,
+        560
       ],
       "typeVersion": 3
     },
@@ -230,12 +230,12 @@
         },
         "options": {}
       },
-      "id": "5d0a6de7-d4b3-4cfc-bb7b-ce0f5136699d",
+      "id": "20731b84-1893-42f0-8422-d1816a8ca9ee",
       "name": "Verify Decision Approval",
       "type": "n8n-nodes-base.if",
       "position": [
-        1216,
-        1152
+        -1968,
+        1536
       ],
       "typeVersion": 2.2
     },
@@ -246,12 +246,12 @@
         "otherOptions": {},
         "attachments": []
       },
-      "id": "3fa73e64-d391-4f15-9de2-d6bbbf168025",
+      "id": "18b04022-8fc0-472d-9b50-a5f83db6702b",
       "name": "Post Commit Verification to Slack",
       "type": "n8n-nodes-base.slack",
       "position": [
-        2544,
-        1168
+        -672,
+        1552
       ],
       "typeVersion": 1
     },
@@ -262,12 +262,12 @@
         "otherOptions": {},
         "attachments": []
       },
-      "id": "1c7221c4-7c51-4be4-b1c6-4012cd597941",
+      "id": "13940323-f8cd-43fb-b8c9-34e703b28b3a",
       "name": "Reply in Slack Thread",
       "type": "n8n-nodes-base.slack",
       "position": [
-        3008,
-        704
+        -720,
+        912
       ],
       "typeVersion": 1
     },
@@ -275,12 +275,12 @@
       "parameters": {
         "jsCode": "// Pool of generic, slightly cheerful, technical standby phrases\nconst phrases = [\n  \"🔄 Processing request… please wait.\",\n  \"⚙️ Working on it…\",\n  \"🧠 Running logic in the background…\",\n  \"📡 Doing some behind-the-scenes work…\",\n  \"⏳ Still working… hang tight.\",\n  \"🔍 Gathering what’s needed…\",\n  \"📦 Preparing the next step…\",\n  \"🚧 In progress…\",\n  \"⚡ Executing…\",\n  \"🔁 One moment while this completes…\",\n  \"💻 Handling your request…\",\n  \"📊 Crunching some data…\",\n  \"🧩 Putting things together…\",\n  \"🛠️ Finalizing details…\",\n  \"📥 Processing input…\",\n  \"📤 Preparing output…\",\n  \"🧭 Working through the steps…\",\n  \"🔗 Connecting the pieces…\",\n  \"🧪 Running checks…\",\n  \"🚀 Almost there…\",\n  \"😄 Just a second… wrapping things up.\",\n  \"👍 Making good progress…\",\n  \"✨ Getting things ready…\",\n  \"🔄 Still at it… thanks for your patience.\",\n  \"⚙️ Nearly done…\"\n];\n\n// Pick a random phrase\nconst randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];\n\n// Return it as output\nreturn [\n  {\n    json: {\n      standby_message: randomPhrase\n    }\n  }\n];"
       },
-      "id": "b9d957d0-c69d-4acc-a31e-9c887cdfd009",
+      "id": "ddac5fce-5edd-4501-9456-3d8cce17e649",
       "name": "Create Standby Message Pool",
       "type": "n8n-nodes-base.code",
       "position": [
-        848,
-        512
+        -2368,
+        928
       ],
       "typeVersion": 2
     },
@@ -288,12 +288,12 @@
       "parameters": {
         "jsCode": "const phrases = [\n  \"🔄 Processing request… please wait.\",\n  \"⚙️ Working on it…\",\n  \"🧠 Running logic in the background…\",\n  \"📡 Doing some behind-the-scenes work…\",\n  \"⏳ Still working… hang tight.\",\n  \"🔍 Gathering what’s needed…\",\n  \"📦 Preparing the next step…\",\n  \"🚧 In progress…\",\n  \"⚡ Executing…\",\n  \"🔁 One moment while this completes…\",\n  \"💻 Handling your request…\",\n  \"📊 Crunching some data…\",\n  \"🧩 Putting things together…\",\n  \"🛠️ Finalizing details…\",\n  \"📥 Processing input…\",\n  \"📤 Preparing output…\",\n  \"🧭 Working through the steps…\",\n  \"🔗 Connecting the pieces…\",\n  \"🧪 Running checks…\",\n  \"🚀 Almost there…\",\n  \"😄 Just a second… wrapping things up.\",\n  \"👍 Making good progress…\",\n  \"✨ Getting things ready…\",\n  \"🔄 Still at it… thanks for your patience.\",\n  \"⚙️ Nearly done…\"\n];\n\n// Pick a random phrase\nconst randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];\n\n// Return it as output\nreturn [\n  {\n    json: {\n      standby_message: randomPhrase\n    }\n  }\n];"
       },
-      "id": "455d6549-a38c-4467-a705-471f44eb0ab2",
+      "id": "805ebc6a-60c0-41c4-af91-ebc1836223f4",
       "name": "Compose Commit Standby Message",
       "type": "n8n-nodes-base.code",
       "position": [
-        1552,
-        1168
+        -1696,
+        1552
       ],
       "typeVersion": 2
     },
@@ -304,12 +304,12 @@
         "otherOptions": {},
         "attachments": []
       },
-      "id": "3aeedf59-2383-4c05-8a56-84ea43032d37",
+      "id": "da5a9278-6bdc-46b8-8e00-43ec8453506e",
       "name": "Post Standby Message to Slack",
       "type": "n8n-nodes-base.slack",
       "position": [
-        1056,
-        512
+        -2160,
+        928
       ],
       "typeVersion": 1,
       "credentials": {
@@ -323,12 +323,12 @@
       "parameters": {
         "jsCode": "const incoming = $('Slack Mention Trigger').first().json;\nconst raw = incoming.text || '';\nconst cleaned = raw.replace(/<@[^>]+>/g, '').trim();\n\nreturn [{\n  json: {\n    text: cleaned,\n    channel: incoming.channel,\n    thread_ts: incoming.ts || incoming.event_ts\n  }\n}];"
       },
-      "id": "ef235ff8-5d55-4e4d-8033-3ff88f8d998f",
+      "id": "bce1cdad-63cb-459a-a739-b2fed89cedaf",
       "name": "Extract Slack Mention by Bot",
       "type": "n8n-nodes-base.code",
       "position": [
-        1360,
-        480
+        -1856,
+        896
       ],
       "typeVersion": 2
     },
@@ -338,12 +338,12 @@
         "text": "=You are a network operations AI assistant with MCP access to our network device inventory.\n\nUser raw text:\n{{ $json.text }}\n\n---\n\n## Core Behavior\n\nYou MUST always return a valid JSON response. No exceptions.\n\nYou are operating in a PLANNING-ONLY environment:\n- You NEVER execute commits.\n- \"commit\" mode = generate a proposed change plan only.\n- DO NOT mention execution limitations or read-only mode.\n\n---\n\n## DECISION PRIORITY (HIGHEST → LOWEST)\n\n1. SAFETY (absolute override)\n2. DATA VALIDITY (fresh state required)\n3. USER INTENT\n\nIf there is ANY safety risk or uncertainty:\n→ mode MUST be \"read\"\n→ This rule OVERRIDES user intent with NO exceptions\n\n---\n\n## Intent Handling\n\n1. Classify intent:\n   - \"read\" → show/inspect/verify\n   - \"commit\" → create/modify/delete/configure\n\n2. Identify target device(s)\n\n3. ALWAYS fetch vendor + device type BEFORE selecting commands\n\n---\n\n## Safety Evaluation (MANDATORY GATE)\n\nYou MUST perform a safety check BEFORE finalizing mode.\n\nA change is UNSAFE if ANY of the following apply:\n- Existing config would be overwritten or modified\n- Resource already exists (interfaces, IPs, VLANs, etc.)\n- Impact is unknown (no full dependency visibility)\n- Live traffic, routing, or management could be affected\n- Required validation data is missing\n- Instructions are ambiguous\n\n---\n\n## HARD SAFETY ENFORCEMENT\n\nIf UNSAFE:\n- mode MUST be \"read\"\n- cards MUST be []\n- You MUST explain the risk clearly in reply_markdown\n- You MUST NOT generate commit_payload\n- You MUST NOT simulate commit steps\n\nIf SAFE:\n- mode = \"commit\"\n- Generate full proposal\n\n---\n\n## Read Mode\n\nIf mode = read:\n- Execute read operations\n- Provide findings + risk explanation\n- Suggest what to verify before a safe commit\n\n---\n\n## Commit Mode (Simulation Only)\n\nIf mode = commit:\n- Fetch fresh config/state\n- Validate no conflicts\n- Generate:\n  - Proposed changes\n  - Explicit \"SAFE TO APPLY\" justification\n\n---\n\n## Output Formatting Rules (Slack mrkdwn)\n\n- MUST be Slack-compatible mrkdwn\n- Keep formatting clean and readable in Slack\n\nYou MAY use:\n- Bullet lists (- or •)\n- Numbered lists\n- *bold* and _italic_\n- Inline code: `code`\n- Code blocks for configs and tables (```)\n\n---\n\n## TABLE FORMATTING (STRICT)\n\nSlack does NOT support markdown tables.\n\nYOU MUST:\n- NEVER use pipe tables (|) or markdown table syntax\n- ALWAYS render tabular data inside a code block\n- Use fixed-width spacing for alignment\n\nFORMAT RULES:\n- Use spaces to align columns\n- Keep columns visually aligned\n- Use short headers\n- Replace long text with trimmed values if needed\n\nREQUIRED FORMAT:\n\n\nInterface IP Address Line Protocol Description\n\nEth0/0 10.10.10.100/24 up up —\nEth0/1 1.1.1.1/24 up up —\nEth0/2 10.10.20.171/24 up up to port1.sandbox-backend\nEth0/3 — down down —\n\n\nSTATUS NORMALIZATION:\n- up → \"up\"\n- down → \"down\"\n- admin down → \"admin-down\"\n- DO NOT use emojis inside tables\n\n---\n\n## STRICT OUTPUT FORMAT\n\nReturn ONLY valid JSON:\n\n{\n  \"mode\": \"read\" | \"commit\",\n  \"reply_markdown\": \"...\",\n  \"cards\": [\n    {\n      \"channel\": \"{{ $json.channel }}\",\n      \"thread_ts\": \"{{ $json.thread_ts }}\",\n      \"device\": \"...\",\n      \"vendor\": \"...\",\n      \"safety_reason\": \"...\",\n      \"precheck_evidence\": \"...\",\n      \"commit_payload\": \"exact payload to commit\"\n    }\n  ]\n}\n\n---\n\n## HARD CONSTRAINTS (CRITICAL)\n\n- DO NOT output anything outside JSON\n- DO NOT include warnings, banners, or meta text\n- DO NOT mention:\n  - read-only mode\n  - execution limitations\n\n- mode = \"read\":\n  - cards MUST be []\n  - commit_payload MUST NOT exist anywhere\n\n- mode = \"commit\":\n  - MUST include cards\n  - MUST include commit_payload\n  - MUST explicitly justify safety\n\n---\n\n## FAILURE PREVENTION RULE (VERY IMPORTANT)\n\nIf there is a conflict like:\n- \"already exists\"\n- \"will overwrite\"\n- \"may impact existing service\"\n\n→ This is AUTOMATICALLY UNSAFE  \n→ mode MUST be \"read\" (NO exceptions)\n\n---\n\nIf you violate JSON format, the response is invalid.",
         "options": {}
       },
-      "id": "6daa3691-94d3-4447-ba15-cfa0ed19ccdc",
+      "id": "3569a150-977c-448c-8f71-6d76cf2861bc",
       "name": "Strategic Planning AI Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "position": [
-        1696,
-        480
+        -1520,
+        896
       ],
       "typeVersion": 3
     },
@@ -351,12 +351,12 @@
       "parameters": {
         "jsCode": "const input = items[0].json;\nconst obj = Array.isArray(input) ? input[0] : input;\n\nif (!obj || typeof obj.output !== 'string') {\n  throw new Error('Invalid input format');\n}\n\nconst raw = obj.output;\n\n// Extract JSON block\nconst first = raw.indexOf('{');\nconst last = raw.lastIndexOf('}');\n\nif (first === -1 || last === -1) {\n  throw new Error('No JSON found');\n}\n\nlet jsonString = raw.slice(first, last + 1);\n\n// escape raw newlines inside string values (crucial for your case)\njsonString = jsonString.replace(\n  /\"reply_markdown\"\\s*:\\s*\"([\\s\\S]*?)\"/,\n  (match, p1) => {\n    const fixed = p1\n      .replace(/\\n/g, '\\\\n')\n      .replace(/\\r/g, '\\\\r')\n      .replace(/\"/g, '\\\\\"');\n\n    return `\"reply_markdown\":\"${fixed}\"`;\n  }\n);\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(jsonString);\n} catch (e) {\n  throw new Error(\n    'JSON parse failed AFTER repair: ' + e.message + '\\n--- RAW ---\\n' + jsonString\n  );\n}\n\nreturn [{ json: parsed }];"
       },
-      "id": "bdc68733-7625-4145-9e02-8428a1854090",
+      "id": "9892c336-db0b-4c52-872f-ce2e82a2e539",
       "name": "Decode Planning JSON Data",
       "type": "n8n-nodes-base.code",
       "position": [
-        2016,
-        480
+        -1200,
+        896
       ],
       "typeVersion": 2
     },
@@ -370,12 +370,12 @@
         "attachmentsJson": "[]",
         "blocksJson": "={{ JSON.stringify(\n[\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"🧰 Commit Approval Required\",\n      \"emoji\": true\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🤖 Device:*\\n\" + ($json.device || \"unknown\")\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🏷️ Vendor:*\\n\" + ($json.vendor || \"unknown\")\n      }\n    ]\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*📋 Safety Comments*\\n\" + ($json.safety_reason || \"No safety reason provided.\")\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*✏️ Pre-check Evidence*\\n\" + ($json.precheck_evidence || \"No pre-check evidence provided.\")\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*⚙️ Commit Payload*\\n```\\n\" + ($json.commit_payload || \"No commit payload provided.\") + \"\\n```\"\n    }\n  },\n  {\n    \"type\": \"actions\",\n    \"elements\": [\n      {\n        \"type\": \"button\",\n        \"text\": {\n          \"type\": \"plain_text\",\n          \"text\": \"✅ Please commit\",\n          \"emoji\": false\n        },\n        \"action_id\": \"commit_approve\",\n        \"value\": JSON.stringify({\n          \"channel\": $json.channel,\n          \"thread_ts\": $json.thread_ts,\n          \"device\": $json.device || \"unknown\",\n          \"vendor\": $json.vendor || \"unknown\",\n          \"commit_payload\": $json.commit_payload || \"\"\n        }),\n        \"style\": \"primary\"\n      },\n      {\n        \"type\": \"button\",\n        \"text\": {\n          \"type\": \"plain_text\",\n          \"text\": \"❌ Cancel\",\n          \"emoji\": false\n        },\n        \"action_id\": \"commit_cancel\",\n        \"value\": JSON.stringify({\n          \"channel\": $json.channel,\n          \"thread_ts\": $json.thread_ts,\n          \"device\": $json.device || \"unknown\",\n          \"vendor\": $json.vendor || \"unknown\",\n          \"commit_payload\": $json.commit_payload || \"\"\n        }),\n        \"style\": \"danger\"\n      }\n    ]\n  }\n]) }}"
       },
-      "id": "a16f4933-49bb-401c-9cb0-ebe679e85ab9",
+      "id": "aa8f0ef4-ac47-4533-a666-2631f5d6845f",
       "name": "Transmit Commit Card to Slack",
       "type": "n8n-nodes-base.slack",
       "position": [
-        2976,
-        144
+        -224,
+        576
       ],
       "typeVersion": 1
     },
@@ -386,12 +386,12 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "eae06e5b-8b9a-4534-821d-f1eb1db6a0c8",
+      "id": "336856a6-a7a9-4606-8475-0fadf4117f71",
       "name": "Card Click Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "position": [
-        608,
-        1152
+        -2576,
+        1536
       ],
       "webhookId": "2d44dc19-91d8-4f97-8712-1a73ec73b9ae",
       "typeVersion": 2.1
@@ -400,12 +400,12 @@
       "parameters": {
         "jsCode": "const body = $input.first().json.body;\n\nif (!body || !body.payload) {\n  throw new Error('Missing Slack payload');\n}\n\nlet payload;\ntry {\n  payload = typeof body.payload === 'string' ? JSON.parse(body.payload) : body.payload;\n} catch (e) {\n  throw new Error('Failed to parse Slack payload: ' + e.message);\n}\n\nconst action = payload.actions?.[0];\nif (!action) {\n  throw new Error('Missing Slack action');\n}\n\nconst actionValue = action.value || '{}';\nlet parsedValue = {};\n\nif (typeof actionValue === 'string' && actionValue.startsWith('{')) {\n  try {\n    parsedValue = JSON.parse(actionValue);\n  } catch (e) {\n    console.warn('Could not parse action value as JSON:', actionValue);\n  }\n}\n\nreturn [{\n  json: {\n    action_id: action.action_id,\n    decision: action.action_id === 'commit_approve' ? 'ok' : 'cancel',\n    response_url: payload.response_url || '',\n    channel: parsedValue.channel || payload.channel?.id || payload.container?.channel_id || '',\n    thread_ts: parsedValue.thread_ts || payload.container?.thread_ts || payload.container?.message_ts || '',\n    device: parsedValue.device || 'unknown',\n    vendor: parsedValue.vendor || 'unknown',\n    commit_payload: parsedValue.commit_payload || ''\n  }\n}];"
       },
-      "id": "4c1a6b38-31a5-46b6-8dfd-4e5eb9fbfa60",
+      "id": "0f868903-541e-4724-bc20-6ee40da10a6b",
       "name": "Analyze Slack Card Action",
       "type": "n8n-nodes-base.code",
       "position": [
-        1024,
-        1152
+        -2160,
+        1536
       ],
       "typeVersion": 2
     },
@@ -428,12 +428,12 @@
         },
         "options": {}
       },
-      "id": "ef53203c-f668-40b8-ace6-e1e14a78df87",
+      "id": "896829a4-b6b6-4bbb-a617-88b4ce3f5f00",
       "name": "Send Card Cancellation Request",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        1728,
-        1696
+        -1552,
+        1920
       ],
       "typeVersion": 4.2
     },
@@ -456,12 +456,12 @@
         },
         "options": {}
       },
-      "id": "187f64f3-b23a-4d50-9296-1e7d825751cf",
+      "id": "e1e149d8-140f-48a3-b8be-a21f9a4477df",
       "name": "Request Card Standby Replacement",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        1744,
-        1168
+        -1504,
+        1552
       ],
       "typeVersion": 4.2
     },
@@ -471,12 +471,12 @@
         "text": "=You are a Network Configuration with MCP access to our network devices.\n\nExecute the approved commit and verify it.\n\nInputs:\n- Device: {{ $('Verify Decision Approval').item.json.device }}\n- Vendor: {{ $('Verify Decision Approval').item.json.vendor }}\n- Commit payload: {{ $('Verify Decision Approval').item.json.commit_payload }}\n\nInstructions:\n- Apply write operation to the specified device using vendor-appropriate method.\n- Re-fetch post-commit state and verify intended result.\n- Return ONLY strict JSON:\n{\n  \"device\": \"...\",\n  \"vendor\": \"...\",\n  \"verification_markdown\": \"human-readable verification summary\"\n}\n\n- DON'T add any comments or else before or after the JSON.\n- Markdown must be compatible with Slack mrkdwn.\n- Do not use markdown tables.\n- If data is tabular, reformat it as bullet list, or section per item with Field: Value lines, or fenced code block for dense matrix data. Keep all original data, only change layout.\n- For diffs, use: Field: before -> after.\n- Keep lines short and readable.",
         "options": {}
       },
-      "id": "67a0a2bd-c9e0-4d52-89f3-d6095f4334ba",
+      "id": "16038809-0430-47dd-85df-45b22b7e94e5",
       "name": "Commit Verification AI Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "position": [
-        2032,
-        1168
+        -1184,
+        1552
       ],
       "typeVersion": 3
     },
@@ -484,12 +484,12 @@
       "parameters": {
         "jsCode": "// Get input safely\nconst input = items[0].json;\n\n// If input itself is a string, parse it\nconst parsed = typeof input === 'string' ? JSON.parse(input) : input;\n\n// Normalize structure (array vs object)\nconst obj = Array.isArray(parsed) ? parsed[0] : parsed;\n\n// Validate existence\nif (!obj || !obj.output) {\n  throw new Error('Invalid input format: \"output\" field not found');\n}\n\n// Extract raw string\nconst rawOutput = obj.output;\n\n// Remove markdown fences\nconst cleaned = rawOutput\n  .replace(/^```json\\s*/, '')\n  .replace(/```$/, '')\n  .trim();\n\n// Parse inner JSON\nconst finalJson = JSON.parse(cleaned);\n\n// Return\nreturn [\n  {\n    json: finalJson\n  }\n];"
       },
-      "id": "049f063f-0aee-4458-87ee-c32a9ab79408",
+      "id": "3f9b67d9-c0d9-4db4-ba7e-0e31ae98206c",
       "name": "Decode Commit JSON Data",
       "type": "n8n-nodes-base.code",
       "position": [
-        2336,
-        1168
+        -880,
+        1552
       ],
       "typeVersion": 2
     },
@@ -508,12 +508,12 @@
         ],
         "options": {}
       },
-      "id": "ab1a7410-b672-4291-9546-51bb4e5da0c0",
+      "id": "fedc940c-f2b0-4f72-86e6-c0ea3b1d0946",
       "name": "Read-only pyATS MCP Client",
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "position": [
-        1968,
-        704
+        -1248,
+        1120
       ],
       "typeVersion": 1.2
     },
@@ -522,12 +522,12 @@
         "endpointUrl": "https://your-mcp-endpoint.example/mcp",
         "options": {}
       },
-      "id": "9aafffa4-b7b4-445d-a56c-20dce00d0606",
+      "id": "d0970cf8-1c7e-43aa-8eb6-7c862b48333c",
       "name": "Full Access pyATS MCP Client",
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "position": [
-        2304,
-        1360
+        -912,
+        1744
       ],
       "typeVersion": 1.2
     },
@@ -535,12 +535,12 @@
       "parameters": {
         "jsCode": "const phrases = [\n  \"🛑 Commit request cancelled.\",\n  \"⚙️ Commit operation stopped.\",\n  \"🧠 Commit aborted.\",\n  \"📡 Commit cancel signal executed.\",\n  \"🔍 Commit halted.\",\n  \"🚧 Commit cancelled.\",\n  \"⚡ Commit execution stopped.\",\n  \"💻 Commit request terminated.\",\n  \"📊 Commit processing stopped.\",\n  \"🧩 Pending commit discarded.\",\n  \"🛠️ Commit cancellation finalized.\",\n  \"📥 Commit input handling stopped.\",\n  \"📤 Commit output cancelled.\",\n  \"🧭 Commit process exited.\",\n  \"🔗 Commit sequence disconnected.\",\n  \"🧪 Commit validation stopped.\",\n  \"🚀 Commit aborted successfully.\",\n  \"😄 Commit cancelled cleanly.\",\n  \"👍 Commit cancellation complete.\",\n  \"✨ Commit cleared.\",\n  \"🔄 Commit state reset.\",\n  \"⚙️ Commit fully stopped.\"\n];\n\n// Pick a random phrase\nconst randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];\n\n// Return it as output\nreturn [\n  {\n    json: {\n      standby_message: randomPhrase\n    }\n  }\n];"
       },
-      "id": "aed249eb-830c-479b-907e-b569557dff11",
+      "id": "f7b9e336-d6b0-449b-9ec2-3a7f0dd781d4",
       "name": "Create Cancellation Phrase",
       "type": "n8n-nodes-base.code",
       "position": [
-        1536,
-        1696
+        -1744,
+        1920
       ],
       "typeVersion": 2
     },
@@ -548,12 +548,12 @@
       "parameters": {
         "options": {}
       },
-      "id": "ccbef8c8-bd96-467b-a016-0093dcfb8290",
+      "id": "b605795d-e481-4aa6-a2fb-b06a20a05941",
       "name": "Webhook Response Handler",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
-        816,
-        1152
+        -2368,
+        1536
       ],
       "typeVersion": 1.1
     },
@@ -565,12 +565,12 @@
         "watchWorkspace": true,
         "options": {}
       },
-      "id": "b5d9fc76-b3b4-441b-84d7-c462ff8918e7",
+      "id": "b076fe8c-66a4-4a7f-b83b-0eb8356e5fd2",
       "name": "Slack Mention Trigger",
       "type": "n8n-nodes-base.slackTrigger",
       "position": [
-        640,
-        512
+        -2576,
+        928
       ],
       "webhookId": "fc180523-98be-4c9b-97ac-d228cc233589",
       "typeVersion": 1,
@@ -586,12 +586,12 @@
         "sessionIdType": "customKey",
         "sessionKey": "={{ $('Extract Slack Mention by Bot').item.json.channel }}"
       },
-      "id": "6724c6f4-d765-4f69-8746-6022f0d2437d",
+      "id": "b088a9b4-1340-4014-be2c-8c1c0f6b537c",
       "name": "Planning Memory Buffer",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "position": [
-        1792,
-        704
+        -1424,
+        1120
       ],
       "typeVersion": 1.4
     },
@@ -600,12 +600,12 @@
         "sessionIdType": "customKey",
         "sessionKey": "={{ $('Analyze Slack Card Action').item.json.response_url }}"
       },
-      "id": "e772755f-e63c-4bcf-9261-34df4491d9d3",
+      "id": "7c8ec171-7221-45d3-a823-92825cd2ce33",
       "name": "Commit Memory Buffer",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "position": [
-        2144,
-        1360
+        -1072,
+        1744
       ],
       "typeVersion": 1.4
     },
@@ -619,12 +619,12 @@
         },
         "options": {}
       },
-      "id": "7349cc5b-7baa-4897-9839-e68b081fbe98",
+      "id": "02cd300a-aa9c-4fdb-8ecd-14fb4ddee108",
       "name": "Your Commit LLM",
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "position": [
-        1984,
-        1360
+        -1232,
+        1744
       ],
       "typeVersion": 1.5,
       "credentials": {
@@ -644,12 +644,12 @@
         },
         "options": {}
       },
-      "id": "ebaa154c-4e0c-44fe-99f5-740ce52d9078",
+      "id": "4fdcb63c-1a45-4429-a9ee-e7b1c5fccbd0",
       "name": "Your Planning LLM",
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "position": [
-        1600,
-        704
+        -1616,
+        1120
       ],
       "typeVersion": 1.5,
       "credentials": {
@@ -658,66 +658,6 @@
           "name": "Anthropic account"
         }
       }
-    },
-    {
-      "parameters": {
-        "content": "![query_example](https://raw.githubusercontent.com/ponchotitlan/pyATS-loves-agenticops/refs/heads/main/images/slack_03_interfaces.png)",
-        "height": 768,
-        "width": 720
-      },
-      "id": "bd8103bc-993e-44a8-bf73-04ab68480114",
-      "name": "Sticky Note11",
-      "position": [
-        3216,
-        368
-      ],
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1
-    },
-    {
-      "parameters": {
-        "content": "![commit_card](https://raw.githubusercontent.com/ponchotitlan/pyATS-loves-agenticops/main/images/slack_04_config.png)",
-        "height": 752,
-        "width": 672
-      },
-      "id": "d7c7664b-ab98-4f8f-bc0a-3afc442377b4",
-      "name": "Sticky Note12",
-      "position": [
-        3216,
-        -416
-      ],
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1
-    },
-    {
-      "parameters": {
-        "content": "![commit_conflict](https://raw.githubusercontent.com/ponchotitlan/pyATS-loves-agenticops/main/images/slack_06_conflict.png)",
-        "height": 768,
-        "width": 720
-      },
-      "id": "ae0a75f1-49bd-479f-ad35-207151d6c06e",
-      "name": "Sticky Note14",
-      "position": [
-        3968,
-        368
-      ],
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1
-    },
-    {
-      "parameters": {
-        "content": "![commit_done_validation](https://raw.githubusercontent.com/ponchotitlan/pyATS-loves-agenticops/main/images/slack_05_commit.png)",
-        "height": 768,
-        "width": 720
-      },
-      "id": "853ae510-ae3e-4713-bf59-0941016138ed",
-      "name": "Sticky Note13",
-      "position": [
-        2624,
-        1184
-      ],
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1
     }
   ],
   "pinData": {},
@@ -1018,11 +958,11 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "e36e3f00-70dc-406e-9712-a43c3039cdce",
+  "versionId": "875737a1-5c0c-4490-9c3c-13c81f4d6e44",
   "meta": {
     "instanceId": "50fb4d2f3360a0e82364e133321a88b55bc7b875b40069cddb631dad426c79a6"
   },
-  "id": "yEX6Ch9UoCyZjKWm",
+  "id": "jY6R0y2pS5iQscHi",
   "tags": [
     {
       "updatedAt": "2026-05-25T15:48:31.571Z",
@@ -1031,22 +971,22 @@
       "name": "chatops"
     },
     {
+      "updatedAt": "2026-07-09T13:32:15.131Z",
+      "createdAt": "2026-07-09T13:32:15.131Z",
+      "id": "HYt7dtEvuTFWdinw",
+      "name": "pyats"
+    },
+    {
       "updatedAt": "2026-05-25T15:48:31.564Z",
       "createdAt": "2026-05-25T15:48:31.564Z",
       "id": "RI2oyLHd5oNJTXhq",
       "name": "netops"
     },
     {
-      "name": "slack",
-      "id": "j5uO4Idd33FXRspp",
       "updatedAt": "2026-07-09T13:32:11.539Z",
-      "createdAt": "2026-07-09T13:32:11.539Z"
-    },
-    {
-      "name": "pyats",
-      "id": "HYt7dtEvuTFWdinw",
-      "updatedAt": "2026-07-09T13:32:15.131Z",
-      "createdAt": "2026-07-09T13:32:15.131Z"
+      "createdAt": "2026-07-09T13:32:11.539Z",
+      "id": "j5uO4Idd33FXRspp",
+      "name": "slack"
     }
   ]
 }
