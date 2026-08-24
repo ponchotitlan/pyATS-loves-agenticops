@@ -43,6 +43,18 @@ Each workflow is self-contained with its own configuration and detailed instruct
 
 ---
 
+## 🧰 Optional Local MCP Backends
+
+This repository now includes an Ansible-based MCP server for deterministic network execution.
+
+- Path: `ansible-mcp/`
+- Endpoint (when running): `http://localhost:8100/mcp`
+- Docs: `ansible-mcp/README.md`
+
+Use this when you want a playbook-driven execution path (dry-run, apply, backup, verify) instead of pyATS-based execution.
+
+---
+
 ## 📦 Available Workflows
 
 | Workflow Name | Description |

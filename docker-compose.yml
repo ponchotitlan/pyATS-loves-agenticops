@@ -70,8 +70,32 @@ services:
     networks:
       - internal
 
+  commit-ledger:
+    image: postgres:16-alpine
+    container_name: commit-ledger
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${COMMIT_LEDGER_USER}
+      - POSTGRES_PASSWORD=${COMMIT_LEDGER_PASSWORD}
+      - POSTGRES_DB=${COMMIT_LEDGER_NAME}
+    volumes:
+      - commit_ledger_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${COMMIT_LEDGER_USER} -d ${COMMIT_LEDGER_NAME}"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - internal
+
 volumes:
   n8n_netauto_data:
+    driver: local
+  commit_ledger_data:
     driver: local
 
 networks:

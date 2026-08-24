@@ -1,3 +1,5 @@
 docker-compose-override.yml
 *.pem
 .env
+ansible-mcp/state/jobs/*.log
+ansible-mcp/state/backups/*.txt
