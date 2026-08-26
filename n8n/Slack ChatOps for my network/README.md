@@ -26,6 +26,10 @@ It uses specialized AI agents, read-only checks, human approval, and a PostgreSQ
 
 ## 🧠 Architecture at a glance
 
+<div align="center">
+<img src="../../images/banner_arch.jpg"/>
+</div>
+
 | Agent | Responsibility | Can Execute Writes? | MCP Mode |
 |------|----------------|----------------------|----------|
 | Strategic Planning AI Agent | Classifies the request, gathers fresh data, assesses risk, and creates a read response or commit proposal | ❌ | Read-only |
@@ -83,55 +87,57 @@ Built-in by design:
 
 ---
 
-Upon adding the bot to the chat, you can ask it to introduce itself.
-<div align="center"></br>
-<img src="../../images/slack_01_hello.png"/></br>
+Upon adding the bot to the chat, you can ask it to do any sorts of read-only queries. For example, checking how compliant is your device against the (Official IOSXE Hardening Guide)[https://sec.cloudapps.cisco.com/security/center/resources/IOS_XE_hardening]. The output can be as specific and justified as you need to help your team get started with a hardening implementation plan.
+<div align="center">
+<a href="https://www.youtube.com/watch?v=ySa3fOKsTd0">
+<img src="https://img.youtube.com/vi/ySa3fOKsTd0/maxresdefault.jpg" alt="Watch the Enhanced Slack ChatOps workflow video on YouTube" width="560">
+</a>
 </div>
 
 ---
 
-You can later ask about your inventory devices, for example.
-<div align="center"></br>
-<img src="../../images/slack_02_inventory.png"/></br>
+When trying to commit any configuration, the AI Agent validates against current data from the target device. Any potential conflicts are highlighted in Slack.
+
+<div align="center">
+<a href="https://www.youtube.com/watch?v=XQIhsC_4oz8">
+<img src="https://img.youtube.com/vi/XQIhsC_4oz8/maxresdefault.jpg" alt="Watch the configuration conflict detection workflow video on YouTube" width="560">
+</a>
 </div>
 
 ---
 
-When querying any specific configuration about any device in the inventory tagging the bot, the MCP server sends the request via pyATS and then displays the result in the chat.
-<div align="center"></br>
-<img src="../../images/slack_03_interfaces.png"/></br>
+Any valid commit configuration attempt results in a Slack card for human-in-the-loop approval/rejection. This card contains information such as the device vendor and type, safety checks done by the AI Agent, and justifications of why this change is safe to apply. The raw CLI configuration is displayed as well.
+
+A record for a configuration attempt is created in the database, containing among other things a card ID and the owner of this attempt.
+
+<div align="center">
+<a href="https://www.youtube.com/watch?v=7-Vxqk011yI">
+<img src="https://img.youtube.com/vi/7-Vxqk011yI/maxresdefault.jpg" alt="Watch the commit configuration workflow video on YouTube" width="560">
+</a>
 </div>
 
 ---
 
-Any commit intent results in a card for human-in-the-loop approval. The card will show up if and only if the configuration is deemed safe. The card will include justifications for why the commit is safe, taking into account freshly collected data from the target device.
-<div align="center"></br>
-<img src="../../images/slack_04_config.png"/></br>
+When approved to commit, the configuration is validated against the records of the database, time expiration and valid configuration. If these checks pass, the payload is finally pushed on the target device. 
+
+After commit, the configuration is validated once again for integrity. The final results are displayed on Slack.
+
+<div align="center">
+<a href="https://www.youtube.com/watch?v=I-SiX7vRlGI">
+<img src="https://img.youtube.com/vi/I-SiX7vRlGI/maxresdefault.jpg" alt="Watch the post-commit verification workflow video on YouTube" width="560">
+</a>
 </div>
 
 ---
 
-On the other hand, if the configuration intent collides with anything existing, the agent will highlight this and explain.
-<div align="center"></br>
-<img src="../../images/slack_06_conflict.png"/></br>
+On the other hand, if the configuration intent is expired or not valid anymore, a notification will appear on Slack accordingly.
+
+<div align="center">
+<a href="https://www.youtube.com/watch?v=kNZmAXuIYfA">
+<img src="https://img.youtube.com/vi/kNZmAXuIYfA/maxresdefault.jpg" alt="Watch the expired or invalid configuration workflow video on YouTube" width="560">
+</a>
 </div>
 
----
-
-When clicking Proceed, the commit is done and the agent collects evidence to verify if the configuration was successfully applied.
-<div align="center"></br>
-<img src="../../images/slack_05_commit.png"/></br>
-</div>
-
----
-
-## 🏗️ Use cases
-
-- Querying my network device inventory
-- Fine-grained querying of device configurations and statuses
-- Cross-check intended configurations against current device state
-- Guarded configuration changes with explicit approval
-- Auditable commit proposals and outcomes
 
 ---
 
