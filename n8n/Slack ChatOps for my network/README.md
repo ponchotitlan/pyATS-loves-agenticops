@@ -89,9 +89,7 @@ Built-in by design:
 
 Upon adding the bot to the chat, you can ask it to do any sorts of read-only queries. For example, checking how compliant is your device against the (Official IOSXE Hardening Guide)[https://sec.cloudapps.cisco.com/security/center/resources/IOS_XE_hardening]. The output can be as specific and justified as you need to help your team get started with a hardening implementation plan.
 <div align="center">
-<a href="https://www.youtube.com/watch?v=ySa3fOKsTd0">
-<img src="https://img.youtube.com/vi/ySa3fOKsTd0/maxresdefault.jpg" alt="Watch the Enhanced Slack ChatOps workflow video on YouTube" width="560">
-</a>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ySa3fOKsTd0?si=ndwhYoi2RyIXu62p" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 </div>
 
 ---
