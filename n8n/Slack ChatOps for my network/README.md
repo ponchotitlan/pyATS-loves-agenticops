@@ -11,6 +11,12 @@ It uses specialized AI agents, read-only checks, human approval, and a PostgreSQ
 
 ---
 
+<div align="center">
+<p><strong>📑 <a href="https://drive.google.com/file/d/18rhfyNeRthqgEozH3UUWnRbK-3gwNiiR/view?usp=sharing">Click here to view the AIConnect 2026 session slides: "Your Infrastructure is Not a Playground: AI Agents for Infra Done Right"</a></strong></p>
+</div>
+
+---
+
 ## ✨ What this gives you
 
 - 💬 Operate your network from Slack (ChatOps)
@@ -87,16 +93,23 @@ Built-in by design:
 
 ---
 
-Upon adding the bot to the chat, you can ask it to do any sorts of read-only queries. For example, checking how compliant is your device against the (Official IOSXE Hardening Guide)[https://sec.cloudapps.cisco.com/security/center/resources/IOS_XE_hardening]. The output can be as specific and justified as you need to help your team get started with a hardening implementation plan.
+🧭 Explore read-only network queries and device hardening compliance checks using the official [Cisco IOS XE Hardening Guide](https://sec.cloudapps.cisco.com/security/center/resources/IOS_XE_hardening).
+
 <div align="center">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/ySa3fOKsTd0?si=ndwhYoi2RyIXu62p" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<p><strong>▶ Click the image below to watch the demo on YouTube</strong></p>
+
+<a href="https://www.youtube.com/watch?v=ySa3fOKsTd0">
+<img src="https://img.youtube.com/vi/ySa3fOKsTd0/maxresdefault.jpg" alt="Watch the Enhanced Slack ChatOps workflow video on YouTube" width="560">
+</a>
 </div>
 
 ---
 
-When trying to commit any configuration, the AI Agent validates against current data from the target device. Any potential conflicts are highlighted in Slack.
+🛡️ See how the workflow checks the current device state and highlights configuration conflicts before presenting a change.
 
 <div align="center">
+<p><strong>▶ Click the image below to watch the demo on YouTube</strong></p>
+
 <a href="https://www.youtube.com/watch?v=XQIhsC_4oz8">
 <img src="https://img.youtube.com/vi/XQIhsC_4oz8/maxresdefault.jpg" alt="Watch the configuration conflict detection workflow video on YouTube" width="560">
 </a>
@@ -104,11 +117,11 @@ When trying to commit any configuration, the AI Agent validates against current 
 
 ---
 
-Any valid commit configuration attempt results in a Slack card for human-in-the-loop approval/rejection. This card contains information such as the device vendor and type, safety checks done by the AI Agent, and justifications of why this change is safe to apply. The raw CLI configuration is displayed as well.
-
-A record for a configuration attempt is created in the database, containing among other things a card ID and the owner of this attempt.
+👤 Watch the human-in-the-loop approval flow, including the Slack card, safety rationale, CLI payload, and database record.
 
 <div align="center">
+<p><strong>▶ Click the image below to watch the demo on YouTube</strong></p>
+
 <a href="https://www.youtube.com/watch?v=7-Vxqk011yI">
 <img src="https://img.youtube.com/vi/7-Vxqk011yI/maxresdefault.jpg" alt="Watch the commit configuration workflow video on YouTube" width="560">
 </a>
@@ -116,11 +129,11 @@ A record for a configuration attempt is created in the database, containing amon
 
 ---
 
-When approved to commit, the configuration is validated against the records of the database, time expiration and valid configuration. If these checks pass, the payload is finally pushed on the target device. 
-
-After commit, the configuration is validated once again for integrity. The final results are displayed on Slack.
+✅ See how approved changes are checked for validity, applied to the target device, and verified afterward in Slack.
 
 <div align="center">
+<p><strong>▶ Click the image below to watch the demo on YouTube</strong></p>
+
 <a href="https://www.youtube.com/watch?v=I-SiX7vRlGI">
 <img src="https://img.youtube.com/vi/I-SiX7vRlGI/maxresdefault.jpg" alt="Watch the post-commit verification workflow video on YouTube" width="560">
 </a>
@@ -128,9 +141,11 @@ After commit, the configuration is validated once again for integrity. The final
 
 ---
 
-On the other hand, if the configuration intent is expired or not valid anymore, a notification will appear on Slack accordingly.
+⏳ See how expired or invalid commit proposals are rejected and reported in Slack.
 
 <div align="center">
+<p><strong>▶ Click the image below to watch the demo on YouTube</strong></p>
+
 <a href="https://www.youtube.com/watch?v=kNZmAXuIYfA">
 <img src="https://img.youtube.com/vi/kNZmAXuIYfA/maxresdefault.jpg" alt="Watch the expired or invalid configuration workflow video on YouTube" width="560">
 </a>
