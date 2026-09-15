@@ -1,3 +1,3 @@
 - File Prefix: hardening_status
-- Query: Compliance with hardening guide
-- Notes: Only device R1. Hardening guide in this URL: https://sec.cloudapps.cisco.com/security/center/resources/IOS_XE_hardening
+- Query: Compliance of device R1 against the hardening guide in this URL: https://sec.cloudapps.cisco.com/security/center/resources/IOS_XE_hardening
+- Notes: Steps to follow: Read the hardening guide. Determine the IOS-XE CLI command to check for compliance of each rule. Use the pyats_run_dynamic_test tool of the MCP server to check all of these at once. Base your verdict on the dynamic test results.
