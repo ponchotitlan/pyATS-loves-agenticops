@@ -1,3 +1,0 @@
-- File Prefix: hardening_status
-- Query: Assess device R1 for compliance against the current Cisco IOS-XE hardening guide at https://sec.cloudapps.cisco.com/security/center/resources/IOS_XE_hardening
-- Notes: Fetch the hardening guide URL once and retrieve R1 running configuration. Extract the core hardening domains from the guide's checklist/appendix, evaluate R1 against each domain, and provide a consolidated assessment report with grouped remediation steps.
