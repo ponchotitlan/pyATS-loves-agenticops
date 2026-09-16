@@ -17,6 +17,8 @@ It uses specialized AI agents, read-only checks, human approval, and a PostgreSQ
 
 ---
 
+# [👉 Download the workflow at n8n.io/workflows 👈](https://n8n.io/workflows/16934-triage-network-read-and-commit-requests-via-slack-with-anthropic-and-pyats/)
+
 ## ✨ What this gives you
 
 - 💬 Operate your network from Slack (ChatOps)

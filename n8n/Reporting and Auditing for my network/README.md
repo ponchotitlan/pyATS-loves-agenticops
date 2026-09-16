@@ -1,9 +1,5 @@
 # 📊 Agentic Reporting & Automated Ticketing for my network Workflow
 
-<div align="center">
-<img src="../../images/reporting_01_arch.png"/>
-</div>
-
 An **agentic n8n workflow** that automatically:
 
 - 🧠 Investigates network state
@@ -14,6 +10,7 @@ An **agentic n8n workflow** that automatically:
 Designed for **continuous operational visibility** and **reporting + issue creation**.
 
 ---
+# [👉 Download the workflow at n8n.io/workflows 👈](https://n8n.io/workflows/17364-generate-network-audit-reports-github-issues-and-slack-alerts-with-claude/)
 
 ## ✨ What this gives you
 
@@ -37,16 +34,6 @@ Clean separation of concerns:
 > One agent observes. One agent escalates.
 
 ---
-First agent integrations
-
-![arch01](../../images/reporting_02_arch.png)
-
----
-Second agent integrations
-
-![arch01](../../images/reporting_03_arch.png)
-
----
 
 ## 🔄 End-to-end flow
 
@@ -56,8 +43,6 @@ Second agent integrations
 
 2. System loads dynamically from GitHub (current repo):
    - All report query files under `n8n/Reporting and Auditing for my network/reports/*.txt`
-   - Reporting agent prompt: `n8n/Reporting and Auditing for my network/agents/network_report_agent.txt`
-   - Ticketing agent prompt: `n8n/Reporting and Auditing for my network/agents/network_ticketing_agent.txt`
    - Queries are processed one-by-one via `Loop Over Items`
 
 3. **Reporting Agent**:
