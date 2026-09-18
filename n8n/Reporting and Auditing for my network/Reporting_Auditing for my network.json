@@ -441,7 +441,7 @@
     },
     {
       "parameters": {
-        "channel": "C0B61KVMS74",
+        "channel": "your_channel_id",
         "text": "=📝 Automated Report Generation",
         "jsonParameters": true,
         "otherOptions": {},
@@ -466,7 +466,7 @@
     },
     {
       "parameters": {
-        "channel": "C0B61KVMS74",
+        "channel": "your_channel_id",
         "text": "=📝 Automated Report Generation",
         "jsonParameters": true,
         "otherOptions": {},
@@ -717,6 +717,21 @@
       ],
       "id": "3e8c13bc-11a3-4204-862a-7b37d449c313",
       "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "![Arch](https://raw.githubusercontent.com/ponchotitlan/pyATS-loves-agenticops/refs/heads/main/images/banner_arch_reporting.png)",
+        "height": 288,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        528
+      ],
+      "id": "f704f505-d203-475d-86fd-495448ae4501",
+      "name": "Sticky Note1"
     }
   ],
   "pinData": {},
@@ -1091,12 +1106,25 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "b2d3da5a-d0ce-4a8e-9e29-f1f5325f2781",
+  "versionId": "68464ffe-9f9b-4613-a4e0-fe85898d8918",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "50fb4d2f3360a0e82364e133321a88b55bc7b875b40069cddb631dad426c79a6"
   },
   "nodeGroups": [],
   "id": "8ypTst40kVbprIp6",
-  "tags": []
+  "tags": [
+    {
+      "updatedAt": "2026-09-15T16:25:10.853Z",
+      "createdAt": "2026-09-15T16:25:10.853Z",
+      "id": "MyYwUMUNBv9jLIMu",
+      "name": "ticketing"
+    },
+    {
+      "updatedAt": "2026-05-25T18:32:01.778Z",
+      "createdAt": "2026-05-25T18:32:01.778Z",
+      "id": "aA1WrsV70P2sqfzP",
+      "name": "reporting"
+    }
+  ]
 }
