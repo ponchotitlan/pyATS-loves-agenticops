@@ -37,7 +37,7 @@ Before diving in, make sure you have these essentials ready:
 2. **Adjust `testbed.yaml`** with your own network inventory and credentials
 3. **Explore the workflow folders**: Each folder contains:
    - 📚 Dedicated documentation in `.md` files explaining setup and usage
-   - 📄 A `.json` workflow file ready to import into n8n
+   - 🔗 A link to the n8n workflows catalogue for each specific workflow
 
 Each workflow is self-contained with its own configuration and detailed instructions. Simply pick the one that fits your use case and follow along! 🎓
 
